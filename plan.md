@@ -92,7 +92,7 @@ Git + GitHub, GitHub Actions (CI), pre-commit, Makefile or `just`, Docker + Dock
 ## 4. Repo layout
 
 ```
-gamma-clone/
+delta/
 ├─ backend/
 │  ├─ app/
 │  │  ├─ main.py
