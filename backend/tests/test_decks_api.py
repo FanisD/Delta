@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -133,4 +133,9 @@ def test_concurrent_database_startup_migrates_once(
             migration.result()
 
     with create_engine(f"sqlite:///{database_file}").connect() as connection:
-        assert connection.exec_driver_sql("SELECT version_num FROM alembic_version").scalar_one()
+        revision: str = connection.exec_driver_sql(
+            "SELECT version_num FROM alembic_version"
+        ).scalar_one()
+        tables: list[str] = inspect(connection).get_table_names()
+    assert revision == "0002_llm_provider_settings"
+    assert {"decks", "llm_providers", "llm_model_defaults"}.issubset(tables)

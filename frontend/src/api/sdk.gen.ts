@@ -20,13 +20,29 @@ import type {
   GetDeckApiDecksDeckIdGetResponses,
   GetLayoutsApiLayoutsGetData,
   GetLayoutsApiLayoutsGetResponses,
+  GetModelCapabilityApiModelsCapabilitiesProviderGetData,
+  GetModelCapabilityApiModelsCapabilitiesProviderGetErrors,
+  GetModelCapabilityApiModelsCapabilitiesProviderGetResponses,
+  GetProviderSettingsApiSettingsProvidersGetData,
+  GetProviderSettingsApiSettingsProvidersGetResponses,
   HealthHealthGetData,
   HealthHealthGetResponses,
   ListDecksApiDecksGetData,
   ListDecksApiDecksGetResponses,
+  ListOllamaModelsApiProvidersOllamaModelsGetData,
+  ListOllamaModelsApiProvidersOllamaModelsGetResponses,
+  TestProviderConnectionApiSettingsProvidersTestPostData,
+  TestProviderConnectionApiSettingsProvidersTestPostErrors,
+  TestProviderConnectionApiSettingsProvidersTestPostResponses,
   UpdateDeckApiDecksDeckIdPatchData,
   UpdateDeckApiDecksDeckIdPatchErrors,
   UpdateDeckApiDecksDeckIdPatchResponses,
+  UpdateModelDefaultsApiSettingsModelsPutData,
+  UpdateModelDefaultsApiSettingsModelsPutErrors,
+  UpdateModelDefaultsApiSettingsModelsPutResponses,
+  UpdateProviderSettingsApiSettingsProvidersProviderPutData,
+  UpdateProviderSettingsApiSettingsProvidersProviderPutErrors,
+  UpdateProviderSettingsApiSettingsProvidersProviderPutResponses,
 } from "./types.gen"
 
 export type Options<
@@ -140,6 +156,150 @@ export const updateDeckApiDecksDeckIdPatch = <
       ...options.headers,
     },
   })
+
+/**
+ * Get Model Capability
+ */
+export const getModelCapabilityApiModelsCapabilitiesProviderGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetModelCapabilityApiModelsCapabilitiesProviderGetData,
+    ThrowOnError
+  >,
+): RequestResult<
+  GetModelCapabilityApiModelsCapabilitiesProviderGetResponses,
+  GetModelCapabilityApiModelsCapabilitiesProviderGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetModelCapabilityApiModelsCapabilitiesProviderGetResponses,
+    GetModelCapabilityApiModelsCapabilitiesProviderGetErrors,
+    ThrowOnError
+  >({ url: "/api/models/capabilities/{provider}", ...options })
+
+/**
+ * Get Provider Settings
+ */
+export const getProviderSettingsApiSettingsProvidersGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetProviderSettingsApiSettingsProvidersGetData,
+    ThrowOnError
+  >,
+): RequestResult<
+  GetProviderSettingsApiSettingsProvidersGetResponses,
+  unknown,
+  ThrowOnError
+> =>
+  (options?.client ?? client).get<
+    GetProviderSettingsApiSettingsProvidersGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/settings/providers", ...options })
+
+/**
+ * Update Provider Settings
+ */
+export const updateProviderSettingsApiSettingsProvidersProviderPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdateProviderSettingsApiSettingsProvidersProviderPutData,
+    ThrowOnError
+  >,
+): RequestResult<
+  UpdateProviderSettingsApiSettingsProvidersProviderPutResponses,
+  UpdateProviderSettingsApiSettingsProvidersProviderPutErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    UpdateProviderSettingsApiSettingsProvidersProviderPutResponses,
+    UpdateProviderSettingsApiSettingsProvidersProviderPutErrors,
+    ThrowOnError
+  >({
+    url: "/api/settings/providers/{provider}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Update Model Defaults
+ */
+export const updateModelDefaultsApiSettingsModelsPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdateModelDefaultsApiSettingsModelsPutData, ThrowOnError>,
+): RequestResult<
+  UpdateModelDefaultsApiSettingsModelsPutResponses,
+  UpdateModelDefaultsApiSettingsModelsPutErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    UpdateModelDefaultsApiSettingsModelsPutResponses,
+    UpdateModelDefaultsApiSettingsModelsPutErrors,
+    ThrowOnError
+  >({
+    url: "/api/settings/models",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Test Provider Connection
+ */
+export const testProviderConnectionApiSettingsProvidersTestPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    TestProviderConnectionApiSettingsProvidersTestPostData,
+    ThrowOnError
+  >,
+): RequestResult<
+  TestProviderConnectionApiSettingsProvidersTestPostResponses,
+  TestProviderConnectionApiSettingsProvidersTestPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    TestProviderConnectionApiSettingsProvidersTestPostResponses,
+    TestProviderConnectionApiSettingsProvidersTestPostErrors,
+    ThrowOnError
+  >({
+    url: "/api/settings/providers/test",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * List Ollama Models
+ */
+export const listOllamaModelsApiProvidersOllamaModelsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    ListOllamaModelsApiProvidersOllamaModelsGetData,
+    ThrowOnError
+  >,
+): RequestResult<
+  ListOllamaModelsApiProvidersOllamaModelsGetResponses,
+  unknown,
+  ThrowOnError
+> =>
+  (options?.client ?? client).get<
+    ListOllamaModelsApiProvidersOllamaModelsGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/providers/ollama/models", ...options })
 
 /**
  * Health

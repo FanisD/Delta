@@ -5,8 +5,12 @@ requires-python = ">=3.12"
 dependencies = [
     "aiosqlite>=0.22.1",
     "alembic>=1.20.0",
+    "cryptography>=50.0.1",
     "fastapi[standard]>=0.141.1",
     "filelock>=3.18.0",
+    "httpx>=0.28.1",
+    "json-repair>=0.63.5",
+    "litellm>=1.103.0",
     "pydantic-settings>=2.15.0",
     "sqlalchemy[asyncio]>=2.1.1",
 ]
@@ -17,6 +21,7 @@ dev = [
     "pre-commit>=4.5.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
+    "respx>=0.23.1",
     "ruff>=0.16.9",
 ]
 [tool.ruff]

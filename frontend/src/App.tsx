@@ -7,6 +7,7 @@ import {
   Maximize2,
   Play,
   Presentation,
+  Settings as SettingsIcon,
 } from "lucide-react"
 import {
   healthHealthGet,
@@ -17,6 +18,7 @@ import {
 } from "./api"
 import { client } from "./api/client.gen"
 import { DeckCard } from "./components/decks/DeckCard"
+import { ProviderSettings } from "./components/settings/ProviderSettings"
 
 client.setConfig({ baseUrl: window.location.origin })
 
@@ -41,6 +43,7 @@ function App() {
   const [slideIndex, setSlideIndex] = useState(0)
   const [savingTheme, setSavingTheme] = useState(false)
   const [loadAttempt, setLoadAttempt] = useState(0)
+  const [showSettings, setShowSettings] = useState(false)
 
   const selectedDeck = useMemo(
     () => decks.find((deck) => deck.id === selectedId) ?? null,
@@ -230,6 +233,7 @@ function App() {
             event.preventDefault()
             setSelectedId(null)
             setPresenting(false)
+            setShowSettings(false)
           }}
           aria-label="Delta home"
         >
@@ -248,9 +252,21 @@ function App() {
           />
           {backendStatus}
         </div>
+        <button
+          className="quiet-button settings-nav"
+          onClick={() => {
+            setSelectedId(null)
+            setShowSettings(true)
+          }}
+        >
+          <SettingsIcon size={15} />
+          Settings
+        </button>
       </header>
 
-      {selectedDeck ? (
+      {showSettings ? (
+        <ProviderSettings onBack={() => setShowSettings(false)} />
+      ) : selectedDeck ? (
         <section className="deck-workspace">
           <div className="workspace-heading">
             <button

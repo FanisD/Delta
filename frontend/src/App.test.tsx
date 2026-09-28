@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import type { DeckDocument } from "./api"
 import App from "./App"
@@ -75,6 +81,18 @@ function stubApi() {
         headers: { "Content-Type": "application/json" },
       })
     }
+    if (pathname === "/api/settings/providers") {
+      return new Response(
+        JSON.stringify({
+          providers: [],
+          defaults: { outline: null, content: null, edit: null },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      )
+    }
     return new Response(null, { status: 404 })
   })
   vi.stubGlobal("fetch", fetchMock)
@@ -82,6 +100,7 @@ function stubApi() {
 }
 
 afterEach(() => {
+  cleanup()
   vi.unstubAllGlobals()
 })
 
@@ -93,6 +112,22 @@ describe("presentation library", () => {
     expect(await screen.findByText("Backend connected")).toBeInTheDocument()
     expect(
       await screen.findByRole("button", { name: /A story with a beginning/ }),
+    ).toBeInTheDocument()
+  })
+
+  it("opens provider settings and returns to the library", async () => {
+    stubApi()
+    render(<App />)
+
+    fireEvent.click(await screen.findByRole("button", { name: "Settings" }))
+    expect(
+      await screen.findByRole("heading", { name: "Model providers" }),
+    ).toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole("button", { name: "Back to presentations" }),
+    )
+    expect(
+      await screen.findByRole("heading", { name: "Your presentations" }),
     ).toBeInTheDocument()
   })
 

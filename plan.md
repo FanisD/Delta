@@ -208,17 +208,17 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 ### Phase 2: LLM provider layer (1 week)
 
-- [ ] **P2.1** Provider settings model and API; keys encrypted at rest, write-only from the frontend
-- [ ] **P2.2** LiteLLM wrapper with async `complete()` and `stream()`
-- [ ] **P2.3** `generate_structured(PydanticModel, messages)` using Instructor or JSON-schema `response_format` (Ollama `format` field for local)
-- [ ] **P2.4** Model capability registry (supports JSON schema? tools? context window?) and a fallback ladder: native schema, then JSON mode, then prompt-only plus repair
-- [ ] **P2.5** JSON repair, validation, and retry with the validation error fed back to the model
-- [ ] **P2.6** Ollama integration: list installed models, connection test, clear errors (server down, model not pulled)
-- [ ] **P2.7** Frontend settings page: add provider, test connection, pick default models per role (outline / content / edit)
-- [ ] **P2.8** Benchmark script (`evals/`): fixed prompts against each configured model, reporting valid-JSON rate, latency, tokens
-- [ ] **P2.9** Timeouts, cancellation, rate-limit backoff, rough token/cost estimate
+- [x] **P2.1** Provider settings model and API; keys encrypted at rest, write-only from the frontend
+- [x] **P2.2** LiteLLM wrapper with async `complete()` and `stream()`
+- [x] **P2.3** `generate_structured(PydanticModel, messages)` using JSON-schema `response_format` (Ollama `format` field for local)
+- [x] **P2.4** Model capability registry (supports JSON schema? tools? context window?) and a fallback ladder: native schema, then JSON mode, then prompt-only plus repair
+- [x] **P2.5** JSON repair, validation, and retry with the validation error fed back to the model
+- [x] **P2.6** Ollama integration: list installed models, connection test, clear errors (server down, model not pulled)
+- [x] **P2.7** Frontend settings page: add provider, test connection, pick default models per role (outline / content / edit)
+- [x] **P2.8** Benchmark script (`backend/scripts/benchmark_models.py`): fixed prompts against each configured model, reporting valid-JSON rate, latency, tokens, and estimated cost
+- [x] **P2.9** Timeouts, cancellation, rate-limit backoff, rough token/cost estimate
 
-**Done when:** the same structured call succeeds on Gemini, Claude, Grok and at least one Ollama model, and the benchmark prints a comparison.
+**Done when:** the same structured call succeeds on Gemini, Claude, Grok and at least one Ollama model, and the benchmark prints a comparison. Automated tests cover provider contracts and fallback behavior; live provider verification requires user-supplied credentials and an installed/running Ollama model.
 
 ### Phase 3: Generation pipeline (1-2 weeks)
 
