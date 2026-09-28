@@ -8,7 +8,26 @@ import type {
   TDataShape,
 } from "./client"
 import { client } from "./client.gen"
-import type { HealthHealthGetData, HealthHealthGetResponses } from "./types.gen"
+import type {
+  CreateDeckApiDecksPostData,
+  CreateDeckApiDecksPostErrors,
+  CreateDeckApiDecksPostResponses,
+  DeleteDeckApiDecksDeckIdDeleteData,
+  DeleteDeckApiDecksDeckIdDeleteErrors,
+  DeleteDeckApiDecksDeckIdDeleteResponses,
+  GetDeckApiDecksDeckIdGetData,
+  GetDeckApiDecksDeckIdGetErrors,
+  GetDeckApiDecksDeckIdGetResponses,
+  GetLayoutsApiLayoutsGetData,
+  GetLayoutsApiLayoutsGetResponses,
+  HealthHealthGetData,
+  HealthHealthGetResponses,
+  ListDecksApiDecksGetData,
+  ListDecksApiDecksGetResponses,
+  UpdateDeckApiDecksDeckIdPatchData,
+  UpdateDeckApiDecksDeckIdPatchErrors,
+  UpdateDeckApiDecksDeckIdPatchResponses,
+} from "./types.gen"
 
 export type Options<
   TData extends TDataShape = TDataShape,
@@ -29,6 +48,100 @@ export type Options<
 }
 
 /**
+ * List Decks
+ */
+export const listDecksApiDecksGet = <ThrowOnError extends boolean = false>(
+  options?: Options<ListDecksApiDecksGetData, ThrowOnError>,
+): RequestResult<ListDecksApiDecksGetResponses, unknown, ThrowOnError> =>
+  (options?.client ?? client).get<
+    ListDecksApiDecksGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/decks", ...options })
+
+/**
+ * Create Deck
+ */
+export const createDeckApiDecksPost = <ThrowOnError extends boolean = false>(
+  options: Options<CreateDeckApiDecksPostData, ThrowOnError>,
+): RequestResult<
+  CreateDeckApiDecksPostResponses,
+  CreateDeckApiDecksPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    CreateDeckApiDecksPostResponses,
+    CreateDeckApiDecksPostErrors,
+    ThrowOnError
+  >({
+    url: "/api/decks",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Delete Deck
+ */
+export const deleteDeckApiDecksDeckIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DeleteDeckApiDecksDeckIdDeleteData, ThrowOnError>,
+): RequestResult<
+  DeleteDeckApiDecksDeckIdDeleteResponses,
+  DeleteDeckApiDecksDeckIdDeleteErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    DeleteDeckApiDecksDeckIdDeleteResponses,
+    DeleteDeckApiDecksDeckIdDeleteErrors,
+    ThrowOnError
+  >({ url: "/api/decks/{deck_id}", ...options })
+
+/**
+ * Get Deck
+ */
+export const getDeckApiDecksDeckIdGet = <ThrowOnError extends boolean = false>(
+  options: Options<GetDeckApiDecksDeckIdGetData, ThrowOnError>,
+): RequestResult<
+  GetDeckApiDecksDeckIdGetResponses,
+  GetDeckApiDecksDeckIdGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetDeckApiDecksDeckIdGetResponses,
+    GetDeckApiDecksDeckIdGetErrors,
+    ThrowOnError
+  >({ url: "/api/decks/{deck_id}", ...options })
+
+/**
+ * Update Deck
+ */
+export const updateDeckApiDecksDeckIdPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdateDeckApiDecksDeckIdPatchData, ThrowOnError>,
+): RequestResult<
+  UpdateDeckApiDecksDeckIdPatchResponses,
+  UpdateDeckApiDecksDeckIdPatchErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).patch<
+    UpdateDeckApiDecksDeckIdPatchResponses,
+    UpdateDeckApiDecksDeckIdPatchErrors,
+    ThrowOnError
+  >({
+    url: "/api/decks/{deck_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * Health
  */
 export const healthHealthGet = <ThrowOnError extends boolean = false>(
@@ -39,3 +152,15 @@ export const healthHealthGet = <ThrowOnError extends boolean = false>(
     unknown,
     ThrowOnError
   >({ url: "/health", ...options })
+
+/**
+ * Get Layouts
+ */
+export const getLayoutsApiLayoutsGet = <ThrowOnError extends boolean = false>(
+  options?: Options<GetLayoutsApiLayoutsGetData, ThrowOnError>,
+): RequestResult<GetLayoutsApiLayoutsGetResponses, unknown, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetLayoutsApiLayoutsGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/layouts", ...options })

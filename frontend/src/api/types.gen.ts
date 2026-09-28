@@ -5,6 +5,188 @@ export type ClientOptions = {
 }
 
 /**
+ * BulletsBlock
+ */
+export type BulletsBlock = {
+  /**
+   * Type
+   */
+  type: "bullets"
+  /**
+   * Items
+   */
+  items: Array<string>
+}
+
+/**
+ * Card
+ */
+export type Card = {
+  /**
+   * Id
+   */
+  id?: string
+  /**
+   * Title
+   */
+  title: string
+  layout: Layout
+  /**
+   * Blocks
+   */
+  blocks: Array<
+    | HeadingBlock
+    | ParagraphBlock
+    | BulletsBlock
+    | ColumnsBlock
+    | QuoteBlock
+    | StatBlock
+    | TableBlock
+    | ImageBlock
+    | ChartBlock
+  >
+}
+
+/**
+ * ChartBlock
+ */
+export type ChartBlock = {
+  /**
+   * Type
+   */
+  type: "chart"
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Labels
+   */
+  labels: Array<string>
+  /**
+   * Values
+   */
+  values: Array<number>
+  /**
+   * Illustrative
+   */
+  illustrative?: boolean
+}
+
+/**
+ * ColumnContent
+ */
+export type ColumnContent = {
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Body
+   */
+  body: string
+}
+
+/**
+ * ColumnsBlock
+ */
+export type ColumnsBlock = {
+  /**
+   * Type
+   */
+  type: "columns"
+  /**
+   * Columns
+   */
+  columns: Array<ColumnContent>
+}
+
+/**
+ * DeckCreate
+ */
+export type DeckCreate = {
+  /**
+   * Title
+   */
+  title: string
+  theme?: Theme
+  /**
+   * Cards
+   */
+  cards: Array<Card>
+}
+
+/**
+ * DeckDocument
+ */
+export type DeckDocument = {
+  /**
+   * Title
+   */
+  title: string
+  theme: Theme
+  /**
+   * Cards
+   */
+  cards: Array<Card>
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Created At
+   */
+  created_at: string
+  /**
+   * Updated At
+   */
+  updated_at: string
+}
+
+/**
+ * DeckUpdate
+ */
+export type DeckUpdate = {
+  /**
+   * Title
+   */
+  title?: string | null
+  theme?: Theme | null
+  /**
+   * Cards
+   */
+  cards?: Array<Card> | null
+}
+
+/**
+ * HTTPValidationError
+ */
+export type HttpValidationError = {
+  /**
+   * Detail
+   */
+  detail?: Array<ValidationError>
+}
+
+/**
+ * HeadingBlock
+ */
+export type HeadingBlock = {
+  /**
+   * Type
+   */
+  type: "heading"
+  /**
+   * Text
+   */
+  text: string
+  /**
+   * Level
+   */
+  level?: number
+}
+
+/**
  * HealthResponse
  */
 export type HealthResponse = {
@@ -13,6 +195,288 @@ export type HealthResponse = {
    */
   status: string
 }
+
+/**
+ * ImageBlock
+ */
+export type ImageBlock = {
+  /**
+   * Type
+   */
+  type: "image"
+  /**
+   * Prompt
+   */
+  prompt: string
+  /**
+   * Asset Id
+   */
+  asset_id?: string | null
+  /**
+   * Alt
+   */
+  alt?: string
+}
+
+/**
+ * Layout
+ */
+export type Layout =
+  | "title"
+  | "single_column"
+  | "two_column"
+  | "three_column"
+  | "image_left"
+  | "image_right"
+  | "quote"
+  | "timeline"
+
+/**
+ * ParagraphBlock
+ */
+export type ParagraphBlock = {
+  /**
+   * Type
+   */
+  type: "paragraph"
+  /**
+   * Text
+   */
+  text: string
+}
+
+/**
+ * QuoteBlock
+ */
+export type QuoteBlock = {
+  /**
+   * Type
+   */
+  type: "quote"
+  /**
+   * Text
+   */
+  text: string
+  /**
+   * Attribution
+   */
+  attribution?: string | null
+}
+
+/**
+ * StatBlock
+ */
+export type StatBlock = {
+  /**
+   * Type
+   */
+  type: "stat"
+  /**
+   * Value
+   */
+  value: string
+  /**
+   * Label
+   */
+  label: string
+  /**
+   * Context
+   */
+  context?: string | null
+}
+
+/**
+ * TableBlock
+ */
+export type TableBlock = {
+  /**
+   * Type
+   */
+  type: "table"
+  /**
+   * Headers
+   */
+  headers: Array<string>
+  /**
+   * Rows
+   */
+  rows: Array<Array<string>>
+}
+
+/**
+ * Theme
+ */
+export type Theme = "ocean" | "sunset" | "forest"
+
+/**
+ * ValidationError
+ */
+export type ValidationError = {
+  /**
+   * Location
+   */
+  loc: Array<string | number>
+  /**
+   * Message
+   */
+  msg: string
+  /**
+   * Error Type
+   */
+  type: string
+  /**
+   * Input
+   */
+  input?: unknown
+  /**
+   * Context
+   */
+  ctx?: {
+    [key: string]: unknown
+  }
+}
+
+export type ListDecksApiDecksGetData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/decks"
+}
+
+export type ListDecksApiDecksGetResponses = {
+  /**
+   * Response List Decks Api Decks Get
+   *
+   * Successful Response
+   */
+  200: Array<DeckDocument>
+}
+
+export type ListDecksApiDecksGetResponse =
+  ListDecksApiDecksGetResponses[keyof ListDecksApiDecksGetResponses]
+
+export type CreateDeckApiDecksPostData = {
+  body: DeckCreate
+  path?: never
+  query?: never
+  url: "/api/decks"
+}
+
+export type CreateDeckApiDecksPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type CreateDeckApiDecksPostError =
+  CreateDeckApiDecksPostErrors[keyof CreateDeckApiDecksPostErrors]
+
+export type CreateDeckApiDecksPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: DeckDocument
+}
+
+export type CreateDeckApiDecksPostResponse =
+  CreateDeckApiDecksPostResponses[keyof CreateDeckApiDecksPostResponses]
+
+export type DeleteDeckApiDecksDeckIdDeleteData = {
+  body?: never
+  path: {
+    /**
+     * Deck Id
+     */
+    deck_id: string
+  }
+  query?: never
+  url: "/api/decks/{deck_id}"
+}
+
+export type DeleteDeckApiDecksDeckIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type DeleteDeckApiDecksDeckIdDeleteError =
+  DeleteDeckApiDecksDeckIdDeleteErrors[keyof DeleteDeckApiDecksDeckIdDeleteErrors]
+
+export type DeleteDeckApiDecksDeckIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void
+}
+
+export type DeleteDeckApiDecksDeckIdDeleteResponse =
+  DeleteDeckApiDecksDeckIdDeleteResponses[keyof DeleteDeckApiDecksDeckIdDeleteResponses]
+
+export type GetDeckApiDecksDeckIdGetData = {
+  body?: never
+  path: {
+    /**
+     * Deck Id
+     */
+    deck_id: string
+  }
+  query?: never
+  url: "/api/decks/{deck_id}"
+}
+
+export type GetDeckApiDecksDeckIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetDeckApiDecksDeckIdGetError =
+  GetDeckApiDecksDeckIdGetErrors[keyof GetDeckApiDecksDeckIdGetErrors]
+
+export type GetDeckApiDecksDeckIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: DeckDocument
+}
+
+export type GetDeckApiDecksDeckIdGetResponse =
+  GetDeckApiDecksDeckIdGetResponses[keyof GetDeckApiDecksDeckIdGetResponses]
+
+export type UpdateDeckApiDecksDeckIdPatchData = {
+  body: DeckUpdate
+  path: {
+    /**
+     * Deck Id
+     */
+    deck_id: string
+  }
+  query?: never
+  url: "/api/decks/{deck_id}"
+}
+
+export type UpdateDeckApiDecksDeckIdPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type UpdateDeckApiDecksDeckIdPatchError =
+  UpdateDeckApiDecksDeckIdPatchErrors[keyof UpdateDeckApiDecksDeckIdPatchErrors]
+
+export type UpdateDeckApiDecksDeckIdPatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: DeckDocument
+}
+
+export type UpdateDeckApiDecksDeckIdPatchResponse =
+  UpdateDeckApiDecksDeckIdPatchResponses[keyof UpdateDeckApiDecksDeckIdPatchResponses]
 
 export type HealthHealthGetData = {
   body?: never
@@ -30,3 +494,24 @@ export type HealthHealthGetResponses = {
 
 export type HealthHealthGetResponse =
   HealthHealthGetResponses[keyof HealthHealthGetResponses]
+
+export type GetLayoutsApiLayoutsGetData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/layouts"
+}
+
+export type GetLayoutsApiLayoutsGetResponses = {
+  /**
+   * Response Get Layouts Api Layouts Get
+   *
+   * Successful Response
+   */
+  200: Array<{
+    [key: string]: unknown
+  }>
+}
+
+export type GetLayoutsApiLayoutsGetResponse =
+  GetLayoutsApiLayoutsGetResponses[keyof GetLayoutsApiLayoutsGetResponses]

@@ -2,7 +2,7 @@
 
 **Turn a prompt into a polished, editable presentation. Runs on your machine, with the AI model you choose.**
 
-> **Status:** Phase 0 foundation is complete. The React frontend is wired to the FastAPI health endpoint; presentation generation and editing are planned for later phases.
+> **Status:** Phases 0 and 1 are complete. Delta currently includes a local deck library, validated document model, persistent deck API, shared layouts, three themes, and scroll/presentation rendering. AI generation and editing are planned for later phases.
 
 Delta is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
 
@@ -12,11 +12,18 @@ Delta is an open-source, local-first AI presentation builder inspired by tools l
 
 ## Features
 
+Available now:
+
+- Browse three hand-written demo decks in the local presentation library
+- Render validated card documents with eight shared layouts and nine block types
+- Switch between Ocean, Sunset, and Forest themes; theme changes persist locally
+- Scroll through a deck or use presentation mode with arrow-key navigation
+- Create, read, update, and delete decks through the local API
+
 Planned (see the [roadmap](#roadmap)):
 
 - Generate a deck from a prompt, pasted text, or an imported PDF / DOCX / URL
 - Editable outline before full generation
-- Card-based layouts that grow with their content, plus switchable themes
 - Inline AI editing (rewrite, shorten, expand, translate) and a chat agent for whole-deck changes
 - AI-generated images and charts
 - Export to PDF, PNG, PPTX and standalone HTML
