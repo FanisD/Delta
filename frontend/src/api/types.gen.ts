@@ -232,6 +232,77 @@ export type Layout =
   | "timeline"
 
 /**
+ * ModelCapabilitiesResponse
+ */
+export type ModelCapabilitiesResponse = {
+  /**
+   * Provider
+   */
+  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  /**
+   * Model
+   */
+  model: string
+  /**
+   * Json Schema
+   */
+  json_schema: boolean
+  /**
+   * Json Mode
+   */
+  json_mode: boolean
+  /**
+   * Tools
+   */
+  tools: boolean
+  /**
+   * Context Window
+   */
+  context_window: number | null
+  /**
+   * Output Modes
+   */
+  output_modes: Array<string>
+}
+
+/**
+ * ModelDefaultsUpdate
+ */
+export type ModelDefaultsUpdate = {
+  outline: ProviderModelSelection | null
+  content: ProviderModelSelection | null
+  edit: ProviderModelSelection | null
+}
+
+/**
+ * OllamaModel
+ */
+export type OllamaModel = {
+  /**
+   * Name
+   */
+  name: string
+  /**
+   * Size
+   */
+  size?: number | null
+  /**
+   * Modified At
+   */
+  modified_at?: string | null
+}
+
+/**
+ * OllamaModelsResponse
+ */
+export type OllamaModelsResponse = {
+  /**
+   * Models
+   */
+  models: Array<OllamaModel>
+}
+
+/**
  * ParagraphBlock
  */
 export type ParagraphBlock = {
@@ -243,6 +314,112 @@ export type ParagraphBlock = {
    * Text
    */
   text: string
+}
+
+/**
+ * ProviderConfigUpdate
+ */
+export type ProviderConfigUpdate = {
+  /**
+   * Model
+   */
+  model: string
+  /**
+   * Api Key
+   */
+  api_key?: string | null
+  /**
+   * Clear Api Key
+   */
+  clear_api_key?: boolean
+  /**
+   * Base Url
+   */
+  base_url?: string | null
+}
+
+/**
+ * ProviderConfiguration
+ */
+export type ProviderConfiguration = {
+  /**
+   * Provider
+   */
+  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  /**
+   * Configured
+   */
+  configured: boolean
+  /**
+   * Model
+   */
+  model: string | null
+  /**
+   * Base Url
+   */
+  base_url: string | null
+  /**
+   * Api Key Configured
+   */
+  api_key_configured: boolean
+}
+
+/**
+ * ProviderModelSelection
+ */
+export type ProviderModelSelection = {
+  /**
+   * Provider
+   */
+  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  /**
+   * Model
+   */
+  model: string
+}
+
+/**
+ * ProviderSettingsResponse
+ */
+export type ProviderSettingsResponse = {
+  /**
+   * Providers
+   */
+  providers: Array<ProviderConfiguration>
+  /**
+   * Defaults
+   */
+  defaults: {
+    [key: string]: ProviderModelSelection | null
+  }
+}
+
+/**
+ * ProviderTestRequest
+ */
+export type ProviderTestRequest = {
+  /**
+   * Provider
+   */
+  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  /**
+   * Model
+   */
+  model?: string | null
+}
+
+/**
+ * ProviderTestResponse
+ */
+export type ProviderTestResponse = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Message
+   */
+  message: string
 }
 
 /**
@@ -477,6 +654,163 @@ export type UpdateDeckApiDecksDeckIdPatchResponses = {
 
 export type UpdateDeckApiDecksDeckIdPatchResponse =
   UpdateDeckApiDecksDeckIdPatchResponses[keyof UpdateDeckApiDecksDeckIdPatchResponses]
+
+export type GetModelCapabilityApiModelsCapabilitiesProviderGetData = {
+  body?: never
+  path: {
+    /**
+     * Provider
+     */
+    provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  }
+  query: {
+    /**
+     * Model
+     */
+    model: string
+  }
+  url: "/api/models/capabilities/{provider}"
+}
+
+export type GetModelCapabilityApiModelsCapabilitiesProviderGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetModelCapabilityApiModelsCapabilitiesProviderGetError =
+  GetModelCapabilityApiModelsCapabilitiesProviderGetErrors[keyof GetModelCapabilityApiModelsCapabilitiesProviderGetErrors]
+
+export type GetModelCapabilityApiModelsCapabilitiesProviderGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ModelCapabilitiesResponse
+}
+
+export type GetModelCapabilityApiModelsCapabilitiesProviderGetResponse =
+  GetModelCapabilityApiModelsCapabilitiesProviderGetResponses[keyof GetModelCapabilityApiModelsCapabilitiesProviderGetResponses]
+
+export type GetProviderSettingsApiSettingsProvidersGetData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/settings/providers"
+}
+
+export type GetProviderSettingsApiSettingsProvidersGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProviderSettingsResponse
+}
+
+export type GetProviderSettingsApiSettingsProvidersGetResponse =
+  GetProviderSettingsApiSettingsProvidersGetResponses[keyof GetProviderSettingsApiSettingsProvidersGetResponses]
+
+export type UpdateProviderSettingsApiSettingsProvidersProviderPutData = {
+  body: ProviderConfigUpdate
+  path: {
+    /**
+     * Provider
+     */
+    provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  }
+  query?: never
+  url: "/api/settings/providers/{provider}"
+}
+
+export type UpdateProviderSettingsApiSettingsProvidersProviderPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type UpdateProviderSettingsApiSettingsProvidersProviderPutError =
+  UpdateProviderSettingsApiSettingsProvidersProviderPutErrors[keyof UpdateProviderSettingsApiSettingsProvidersProviderPutErrors]
+
+export type UpdateProviderSettingsApiSettingsProvidersProviderPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProviderConfiguration
+}
+
+export type UpdateProviderSettingsApiSettingsProvidersProviderPutResponse =
+  UpdateProviderSettingsApiSettingsProvidersProviderPutResponses[keyof UpdateProviderSettingsApiSettingsProvidersProviderPutResponses]
+
+export type UpdateModelDefaultsApiSettingsModelsPutData = {
+  body: ModelDefaultsUpdate
+  path?: never
+  query?: never
+  url: "/api/settings/models"
+}
+
+export type UpdateModelDefaultsApiSettingsModelsPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type UpdateModelDefaultsApiSettingsModelsPutError =
+  UpdateModelDefaultsApiSettingsModelsPutErrors[keyof UpdateModelDefaultsApiSettingsModelsPutErrors]
+
+export type UpdateModelDefaultsApiSettingsModelsPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProviderSettingsResponse
+}
+
+export type UpdateModelDefaultsApiSettingsModelsPutResponse =
+  UpdateModelDefaultsApiSettingsModelsPutResponses[keyof UpdateModelDefaultsApiSettingsModelsPutResponses]
+
+export type TestProviderConnectionApiSettingsProvidersTestPostData = {
+  body: ProviderTestRequest
+  path?: never
+  query?: never
+  url: "/api/settings/providers/test"
+}
+
+export type TestProviderConnectionApiSettingsProvidersTestPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type TestProviderConnectionApiSettingsProvidersTestPostError =
+  TestProviderConnectionApiSettingsProvidersTestPostErrors[keyof TestProviderConnectionApiSettingsProvidersTestPostErrors]
+
+export type TestProviderConnectionApiSettingsProvidersTestPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProviderTestResponse
+}
+
+export type TestProviderConnectionApiSettingsProvidersTestPostResponse =
+  TestProviderConnectionApiSettingsProvidersTestPostResponses[keyof TestProviderConnectionApiSettingsProvidersTestPostResponses]
+
+export type ListOllamaModelsApiProvidersOllamaModelsGetData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/providers/ollama/models"
+}
+
+export type ListOllamaModelsApiProvidersOllamaModelsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: OllamaModelsResponse
+}
+
+export type ListOllamaModelsApiProvidersOllamaModelsGetResponse =
+  ListOllamaModelsApiProvidersOllamaModelsGetResponses[keyof ListOllamaModelsApiProvidersOllamaModelsGetResponses]
 
 export type HealthHealthGetData = {
   body?: never

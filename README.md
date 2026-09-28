@@ -2,7 +2,7 @@
 
 **Turn a prompt into a polished, editable presentation. Runs on your machine, with the AI model you choose.**
 
-> **Status:** Phases 0 and 1 are complete. Delta currently includes a local deck library, validated document model, persistent deck API, shared layouts, three themes, and scroll/presentation rendering. AI generation and editing are planned for later phases.
+> **Status:** Phases 0 and 1 are complete, and the Phase 2 provider layer is implemented. Delta includes a local deck library, encrypted provider settings, a multi-provider async LLM gateway, structured-output validation, and a model benchmark. AI presentation generation and editing are planned for later phases.
 
 Delta is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
 
@@ -19,6 +19,10 @@ Available now:
 - Switch between Ocean, Sunset, and Forest themes; theme changes persist locally
 - Scroll through a deck or use presentation mode with arrow-key navigation
 - Create, read, update, and delete decks through the local API
+- Configure Gemini, Claude, Grok, OpenAI-compatible endpoints, or local Ollama
+- Set separate default models for outline, card content, and editing tasks
+- Stream or complete asynchronous model calls through a shared LiteLLM gateway, with structured JSON validation and repair
+- Benchmark configured models for JSON validity, latency, tokens, and estimated cost
 
 Planned (see the [roadmap](#roadmap)):
 
@@ -80,15 +84,21 @@ linting, formatting checks, type checks, and tests.
 
 ### Model providers
 
-Model-provider configuration is planned for a later phase. The planned providers are:
+Open **Settings** in the app to configure one or more providers:
 
-| Provider | What you need |
+| Provider | Configuration |
 |---|---|
-| Gemini / Anthropic / xAI | An API key |
-| Ollama | A running Ollama server and at least one pulled model |
-| OpenAI-compatible | A base URL and (optionally) a key |
+| Gemini / Anthropic / xAI | Model name and API key |
+| Ollama | A running Ollama server; use **Find installed models** |
+| OpenAI-compatible | Model name and endpoint base URL; API key is optional |
 
-API keys will be stored locally and encrypted at rest when provider settings are implemented.
+Cloud API keys are write-only in the UI and encrypted in SQLite using Fernet. Before saving a cloud key, set `APP_ENCRYPTION_KEY` in the root `.env` file. Generate a key once:
+
+```bash
+uv run --project backend python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Keep this key private and back it up separately from the database; losing or changing it makes saved provider keys unreadable. After configuring models, run `make benchmark` to print a JSON comparison. Real provider calls require valid provider credentials and, for Ollama, a running server with the selected model installed.
 
 ## Project structure
 

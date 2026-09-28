@@ -1,4 +1,4 @@
-.PHONY: dev gen-api hooks-install lint format-check typecheck test build check
+.PHONY: dev gen-api hooks-install lint format-check typecheck test build benchmark check
 
 dev:
 	@set -m; \
@@ -33,5 +33,8 @@ test:
 
 build:
 	npm --prefix frontend run build
+
+benchmark:
+	cd backend && uv run python scripts/benchmark_models.py
 
 check: lint format-check typecheck test
