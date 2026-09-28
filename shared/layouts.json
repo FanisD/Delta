@@ -1,0 +1,58 @@
+[
+  {
+    "id": "title",
+    "label": "Title",
+    "description": "A strong opening card with one clear message.",
+    "regions": ["eyebrow", "main", "supporting"],
+    "slots": ["heading", "paragraph", "image", "stat"]
+  },
+  {
+    "id": "single_column",
+    "label": "Single column",
+    "description": "A focused, readable vertical flow.",
+    "regions": ["main"],
+    "slots": ["heading", "paragraph", "bullets", "table", "chart", "quote"]
+  },
+  {
+    "id": "two_column",
+    "label": "Two columns",
+    "description": "Compare two ideas or pair a list with a key number.",
+    "regions": ["left", "right"],
+    "slots": ["heading", "paragraph", "bullets", "columns", "stat", "image"]
+  },
+  {
+    "id": "three_column",
+    "label": "Three columns",
+    "description": "Present a compact set of related ideas.",
+    "regions": ["first", "second", "third"],
+    "slots": ["heading", "columns", "stat"]
+  },
+  {
+    "id": "image_left",
+    "label": "Image left",
+    "description": "Pair an image treatment with supporting content.",
+    "regions": ["visual", "main"],
+    "slots": ["image", "heading", "paragraph", "bullets", "stat"]
+  },
+  {
+    "id": "image_right",
+    "label": "Image right",
+    "description": "Lead with content and balance it with a visual.",
+    "regions": ["main", "visual"],
+    "slots": ["heading", "paragraph", "bullets", "image", "chart"]
+  },
+  {
+    "id": "quote",
+    "label": "Quote",
+    "description": "Give one memorable statement room to breathe.",
+    "regions": ["main", "attribution"],
+    "slots": ["quote", "heading"]
+  },
+  {
+    "id": "timeline",
+    "label": "Timeline",
+    "description": "Show a short sequence or progression.",
+    "regions": ["sequence"],
+    "slots": ["heading", "columns", "bullets"]
+  }
+]

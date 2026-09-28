@@ -195,14 +195,14 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 ### Phase 1: Document model and renderer, no AI (1-2 weeks)
 
-- [ ] **P1.1** Pydantic models: `Deck`, `Card`, `Block` (discriminated union on `type`), `Theme`, layout enum, with text length limits
-- [ ] **P1.2** SQLAlchemy model + Alembic migration for decks (JSON column)
-- [ ] **P1.3** CRUD endpoints for decks
-- [ ] **P1.4** Layout specs as data (regions and slots), shared by React and the future PPTX exporter
-- [ ] **P1.5** React block components: heading, paragraph, bullets, columns, quote, stat, table, image, chart placeholder
-- [ ] **P1.6** Build 6-8 layouts (title, two-column, three-box, image-left/right, quote, timeline, ...)
-- [ ] **P1.7** Theme tokens to CSS variables; 3 themes; theme switcher
-- [ ] **P1.8** Seed 2-3 hand-written decks; scroll view plus presentation mode (fullscreen, arrow keys)
+- [x] **P1.1** Pydantic models: `Deck`, `Card`, `Block` (discriminated union on `type`), `Theme`, layout enum, with text length limits
+- [x] **P1.2** SQLAlchemy model + Alembic migration for decks (JSON column)
+- [x] **P1.3** CRUD endpoints for decks
+- [x] **P1.4** Layout specs as data (regions and slots), shared by React and the future PPTX exporter
+- [x] **P1.5** React block components: heading, paragraph, bullets, columns, quote, stat, table, image, chart placeholder
+- [x] **P1.6** Build 6-8 layouts (title, two-column, three-box, image-left/right, quote, timeline, ...)
+- [x] **P1.7** Theme tokens to CSS variables; 3 themes; theme switcher
+- [x] **P1.8** Seed 2-3 hand-written decks; scroll view plus presentation mode (fullscreen, arrow keys)
 
 **Done when:** a hand-written deck renders well, themes switch cleanly, and presentation mode works. This is the foundation everything else sits on; do not skip it.
 

@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: { alias: { "@": path.resolve(import.meta.dirname, "./src") } },
   server: {
+    fs: { allow: [path.resolve(import.meta.dirname, "..")] },
     proxy: {
       "/api": "http://localhost:8000",
       "/health": "http://localhost:8000",
