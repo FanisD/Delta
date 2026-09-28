@@ -1,10 +1,10 @@
-# PROJECT_NAME
+# Delta
 
 **Turn a prompt into a polished, editable presentation. Runs on your machine, with the AI model you choose.**
 
-> **Status:** early development. Nothing here is usable yet; this README will grow as each phase of the plan is completed.
+> **Status:** Phase 0 foundation is complete. The React frontend is wired to the FastAPI health endpoint; presentation generation and editing are planned for later phases.
 
-PROJECT_NAME is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
+Delta is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
 
 *Not affiliated with or endorsed by Gamma.*
 
@@ -39,35 +39,41 @@ Input -> Outline -> Card content (JSON) -> Layout -> Theme -> Images/Charts -> E
 | LLM access | LiteLLM (Gemini, Anthropic, xAI, OpenAI-compatible, Ollama) |
 | Frontend | React, TypeScript, Vite, Tailwind CSS, shadcn/ui, TipTap |
 | Export | Playwright (PDF/PNG), python-pptx (PPTX) |
-| Tooling | uv, Ruff, pytest, Vitest, Playwright, GitHub Actions, Docker |
+| Tooling | uv, Ruff, mypy, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 
 ## Getting started
-
-> These steps are provisional and will be finalized as the project scaffolding lands.
 
 ### Prerequisites
 
 - Python 3.12+ and [uv](https://docs.astral.sh/uv/)
-- Node.js 20+ and npm
+- Node.js 22+ (or 20.19+) and npm
 - *Optional:* [Ollama](https://ollama.com/) for local models
 - *Optional:* Docker and Docker Compose
 
 ### Run locally
 
 ```bash
-git clone https://github.com/<your-username>/PROJECT_NAME.git
-cd PROJECT_NAME
+git clone https://github.com/FanisD/Delta.git
+cd Delta
 
-# Copy the example environment file (once it exists)
+# Copy the example environment file
 cp .env.example .env
 
-# Start backend and frontend (Makefile arrives in Phase 0)
+# Install dependencies, install hooks, and start backend and frontend
+uv sync --project backend
+npm ci --prefix frontend
+make hooks-install
 make dev
 ```
 
-### Choosing a model
+The frontend is available at <http://127.0.0.1:5173>; the API and OpenAPI schema
+are served at <http://127.0.0.1:8000>. Run `make gen-api` to regenerate the
+typed frontend API client from the backend contract, and `make check` to run
+linting, formatting checks, type checks, and tests.
 
-Open **Settings** in the app and add a provider:
+### Model providers
+
+Model-provider configuration is planned for a later phase. The planned providers are:
 
 | Provider | What you need |
 |---|---|
@@ -75,7 +81,7 @@ Open **Settings** in the app and add a provider:
 | Ollama | A running Ollama server and at least one pulled model |
 | OpenAI-compatible | A base URL and (optionally) a key |
 
-API keys are stored locally and encrypted at rest.
+API keys will be stored locally and encrypted at rest when provider settings are implemented.
 
 ## Project structure
 
@@ -83,13 +89,13 @@ API keys are stored locally and encrypted at rest.
 backend/     FastAPI app (API, LLM gateway, generation, export, import)
 frontend/    React app (renderer, editor, settings)
 evals/       Model benchmarks and generation-quality checks
-docs/        Plan and architecture notes
+plan.md      Plan and architecture notes
 data/        Local database and generated assets (gitignored)
 ```
 
 ## Roadmap
 
-- [ ] **Phase 0:** Foundation (repo, scaffolding, tooling, CI)
+- [x] **Phase 0:** Foundation (repo, scaffolding, tooling, CI)
 - [ ] **Phase 1:** Document model and renderer
 - [ ] **Phase 2:** LLM provider layer
 - [ ] **Phase 3:** Generation pipeline
@@ -99,7 +105,7 @@ data/        Local database and generated assets (gitignored)
 - [ ] **Phase 7:** Chat agent
 - [ ] **Phase 8:** Packaging and quality *(v1)*
 
-The full task breakdown lives in [`docs/plan.md`](docs/plan.md).
+The full task breakdown lives in [`plan.md`](plan.md).
 
 ## Contributing
 

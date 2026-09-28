@@ -182,14 +182,14 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 ### Phase 0: Foundation (2-3 days)
 
-- [ ] **P0.1** Create the git repo, `.gitignore`, license, README skeleton
-- [ ] **P0.2** Backend scaffold: `uv init`, FastAPI app, `/health`, pydantic-settings config
-- [ ] **P0.3** Frontend scaffold: Vite + React + TS, Tailwind, shadcn/ui, React Router
-- [ ] **P0.4** Tooling: Ruff, mypy/pyright, pytest; ESLint, Prettier, Vitest; pre-commit hooks
-- [ ] **P0.5** Contract pipeline: export OpenAPI, generate the TS client (`make gen-api`)
-- [ ] **P0.6** Dev commands: `make dev` runs both servers; Vite proxy to FastAPI
-- [ ] **P0.7** CI: GitHub Actions running lint, type-check and tests for both sides
-- [ ] **P0.8** Decide the project name and MVP scope (presentations only)
+- [x] **P0.1** Create the git repo, `.gitignore`, license, README skeleton
+- [x] **P0.2** Backend scaffold: `uv init`, FastAPI app, `/health`, pydantic-settings config
+- [x] **P0.3** Frontend scaffold: Vite + React + TS, Tailwind, shadcn/ui, React Router
+- [x] **P0.4** Tooling: Ruff, mypy/pyright, pytest; ESLint, Prettier, Vitest; pre-commit hooks
+- [x] **P0.5** Contract pipeline: export OpenAPI, generate the TS client (`make gen-api`)
+- [x] **P0.6** Dev commands: `make dev` runs both servers; Vite proxy to FastAPI
+- [x] **P0.7** CI: GitHub Actions running lint, type-check and tests for both sides
+- [x] **P0.8** Decide the project name and MVP scope (Delta; presentations only)
 
 **Done when:** `make dev` boots both apps, the UI can call `/health`, and CI is green.
 

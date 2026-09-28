@@ -1,0 +1,16 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "make": true,
+        "npx --yes --package=node@22 --package=npm@10 -c 'make": true,
+        "npx --yes --package=node@22 --package=npm@10 -c 'npm": true,
+        "npx --yes --package=node@22 --package=npm@10 -c '": true,
+        "/^npx --yes --package=node@22 --package=npm@10 -c 'npm --prefix frontend audit --json' \\| node -e 'let s=\"\";process\\.stdin\\.on\\(\"data\",d=>s\\+=d\\);process\\.stdin\\.on\\(\"end\",\\(\\)=>\\{const a=JSON\\.parse\\(s\\);for\\(const \\[name,v\\] of Object\\.entries\\(a\\.vulnerabilities\\|\\|\\{\\}\\)\\)\\{console\\.log\\(JSON\\.stringify\\(\\{name,severity:v\\.severity,isDirect:v\\.isDirect,range:v\\.range,via:v\\.via,fixAvailable:v\\.fixAvailable\\}\\)\\);\\}\\}\\)'$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^node -e 'const fs=require\\(\"node:fs\"\\); const text=fs\\.readFileSync\\(\"frontend/package-lock\\.json\",\"utf8\"\\); const lock=JSON\\.parse\\(text\\); const wanted=new Set\\(\\[\"@hey-api/openapi-ts\",\"@hey-api/shared\",\"@hey-api/json-schema-ref-parser\",\"js-yaml\"\\]\\); for\\(const \\[path,pkg\\] of Object\\.entries\\(lock\\.packages\\)\\)\\{const name=path\\.split\\(\"node_modules/\"\\)\\.at\\(-1\\); if\\(wanted\\.has\\(name\\)&&pkg\\.version\\)\\{const i=text\\.indexOf\\(JSON\\.stringify\\(path\\)\\);const line=text\\.slice\\(0,i\\)\\.split\\(\"\\\\n\"\\)\\.length;console\\.log\\(`\\$\\{name\\}@\\$\\{pkg\\.version\\}\\\\tfrontend/package-lock\\.json\\\\t\\$\\{line\\}`\\)\\}\\}'$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
