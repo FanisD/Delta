@@ -27,6 +27,7 @@ export function GenerationPanel({ onDone }: { onDone: () => void }) {
   const [status, setStatus] = useState("")
   const [jobId, setJobId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [importText, setImportText] = useState("")
 
   const requestOutline = async () => {
     setBusy(true)
@@ -36,6 +37,23 @@ export function GenerationPanel({ onDone }: { onDone: () => void }) {
       body: JSON.stringify({ prompt, settings }),
     })
     if (response.ok) setOutline(await response.json())
+    setBusy(false)
+  }
+
+  const pasteIntoOutline = async () => {
+    if (!importText.trim()) return
+    setBusy(true)
+    const response = await fetch("/api/import/text", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: importText }),
+    })
+    if (response.ok) {
+      setOutline(await response.json())
+      setPrompt(importText.slice(0, 12000))
+      setStatus("Text imported into outline")
+      setImportText("")
+    } else setStatus("Unable to import text")
     setBusy(false)
   }
 
@@ -124,6 +142,22 @@ export function GenerationPanel({ onDone }: { onDone: () => void }) {
         value={prompt}
         onChange={(event) => setPrompt(event.target.value)}
       />
+      <details className="outline-import">
+        <summary>Paste notes or an existing outline</summary>
+        <textarea
+          aria-label="Paste text to import"
+          placeholder="Paste a document, notes, or outline here…"
+          value={importText}
+          onChange={(event) => setImportText(event.target.value)}
+        />
+        <button
+          className="quiet-button"
+          disabled={busy || !importText.trim()}
+          onClick={() => void pasteIntoOutline()}
+        >
+          Import text
+        </button>
+      </details>
       <div className="generation-settings">
         <label>
           Cards{" "}

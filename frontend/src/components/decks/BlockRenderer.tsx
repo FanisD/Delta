@@ -11,6 +11,7 @@ import type {
   StatBlock,
   TableBlock,
 } from "../../api"
+import { icons } from "lucide-react"
 
 type Block = Card["blocks"][number]
 
@@ -99,6 +100,17 @@ function Table({ block }: { block: TableBlock }) {
 }
 
 function Image({ block }: { block: ImageBlock }) {
+  if (block.asset_id) {
+    return (
+      <figure className="deck-image">
+        <img
+          src={`/api/assets/${encodeURIComponent(block.asset_id)}`}
+          alt={block.alt || block.prompt}
+        />
+        {block.alt && <figcaption>{block.alt}</figcaption>}
+      </figure>
+    )
+  }
   return (
     <div
       className="deck-image-placeholder"
@@ -142,6 +154,29 @@ function Chart({ block }: { block: ChartBlock }) {
   )
 }
 
+function Mermaid({ block }: { block: Extract<Block, { type: "mermaid" }> }) {
+  return (
+    <figure className="deck-mermaid">
+      <pre aria-label={block.caption ?? "Diagram"}>{block.code}</pre>
+      {block.caption && <figcaption>{block.caption}</figcaption>}
+    </figure>
+  )
+}
+
+function Icon({ block }: { block: Extract<Block, { type: "icon" }> }) {
+  const IconComponent = icons[block.name as keyof typeof icons]
+  return IconComponent ? (
+    <span className="deck-icon" aria-label={block.label ?? block.name}>
+      <IconComponent aria-hidden="true" />
+      {block.label && <span>{block.label}</span>}
+    </span>
+  ) : (
+    <span className="deck-icon-fallback" aria-label={block.label ?? block.name}>
+      ✦
+    </span>
+  )
+}
+
 export function BlockRenderer({ block }: { block: Block }) {
   switch (block.type) {
     case "heading":
@@ -162,5 +197,9 @@ export function BlockRenderer({ block }: { block: Block }) {
       return <Image block={block} />
     case "chart":
       return <Chart block={block} />
+    case "mermaid":
+      return <Mermaid block={block} />
+    case "icon":
+      return <Icon block={block} />
   }
 }

@@ -20,6 +20,7 @@ def to_document(record: DeckRecord) -> DeckDocument:
             "id": record.id,
             "created_at": record.created_at,
             "updated_at": record.updated_at,
+            "version": record.version,
         }
     )
 
@@ -38,6 +39,7 @@ async def create_deck(payload: DeckCreate, session: SessionDependency) -> DeckDo
         title=payload.title,
         theme=payload.theme.value,
         document=payload.model_dump(mode="json"),
+        version=1,
         created_at=now,
         updated_at=now,
     )
@@ -65,12 +67,20 @@ async def update_deck(
     if record is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck not found")
 
-    document = {**record.document, **payload.model_dump(exclude_unset=True, mode="json")}
+    if payload.version is not None and payload.version != record.version:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"message": "Deck changed on the server", "version": record.version},
+        )
+    patch = payload.model_dump(exclude_unset=True, mode="json")
+    patch.pop("version", None)
+    document = {**record.document, **patch}
     validated = DeckCreate.model_validate(document)
     record.title = validated.title
     record.theme = validated.theme.value
     record.document = validated.model_dump(mode="json")
     record.updated_at = utc_now()
+    record.version += 1
     await session.commit()
     await session.refresh(record)
     return to_document(record)
@@ -84,3 +94,28 @@ async def delete_deck(deck_id: str, session: SessionDependency) -> Response:
     await session.delete(record)
     await session.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/{deck_id}/duplicate",
+    response_model=DeckDocument,
+    status_code=status.HTTP_201_CREATED,
+)
+async def duplicate_deck(deck_id: str, session: SessionDependency) -> DeckDocument:
+    source = await session.get(DeckRecord, deck_id)
+    if source is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck not found")
+    now = utc_now()
+    copy = DeckRecord(
+        id=str(uuid4()),
+        title=f"{source.title} copy",
+        theme=source.theme,
+        document={**source.document, "title": f"{source.title} copy"},
+        version=1,
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(copy)
+    await session.commit()
+    await session.refresh(copy)
+    return to_document(copy)

@@ -20,3 +20,9 @@ def get_data_directory(configured_directory: str | None = None) -> Path:
 
 def default_database_url(data_directory: Path) -> str:
     return f"sqlite+aiosqlite:///{(data_directory / 'delta.db').as_posix()}"
+
+
+def assets_directory(configured_directory: str | None = None) -> Path:
+    path = get_data_directory(configured_directory) / "assets"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
