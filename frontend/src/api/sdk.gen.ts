@@ -10,6 +10,8 @@ import {
 } from "./client"
 import { client } from "./client.gen"
 import type {
+  CheckForUpdateApiUpdatesCheckGetData,
+  CheckForUpdateApiUpdatesCheckGetResponses,
   CreateDeckApiDecksPostData,
   CreateDeckApiDecksPostErrors,
   CreateDeckApiDecksPostResponses,
@@ -37,6 +39,8 @@ import type {
   ExportVisualApiDecksDeckIdExportKindGetData,
   ExportVisualApiDecksDeckIdExportKindGetErrors,
   ExportVisualApiDecksDeckIdExportKindGetResponses,
+  GetAppInfoApiSettingsAppGetData,
+  GetAppInfoApiSettingsAppGetResponses,
   GetAssetApiAssetsAssetIdGetData,
   GetAssetApiAssetsAssetIdGetErrors,
   GetAssetApiAssetsAssetIdGetResponses,
@@ -80,6 +84,9 @@ import type {
   OutlineApiGenerationOutlinePostData,
   OutlineApiGenerationOutlinePostErrors,
   OutlineApiGenerationOutlinePostResponses,
+  PreviewApiAgentPreviewPostData,
+  PreviewApiAgentPreviewPostErrors,
+  PreviewApiAgentPreviewPostResponses,
   RecoverJobApiGenerationJobsJobIdRecoverPostData,
   RecoverJobApiGenerationJobsJobIdRecoverPostErrors,
   RecoverJobApiGenerationJobsJobIdRecoverPostResponses,
@@ -235,6 +242,40 @@ export const duplicateDeckApiDecksDeckIdDuplicatePost = <
     DuplicateDeckApiDecksDeckIdDuplicatePostErrors,
     ThrowOnError
   >({ url: "/api/decks/{deck_id}/duplicate", ...options })
+
+/**
+ * Get App Info
+ */
+export const getAppInfoApiSettingsAppGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetAppInfoApiSettingsAppGetData, ThrowOnError>,
+): RequestResult<GetAppInfoApiSettingsAppGetResponses, unknown, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetAppInfoApiSettingsAppGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/settings/app", ...options })
+
+/**
+ * Check For Update
+ *
+ * Read-only release check; failures are intentionally treated as no update.
+ */
+export const checkForUpdateApiUpdatesCheckGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CheckForUpdateApiUpdatesCheckGetData, ThrowOnError>,
+): RequestResult<
+  CheckForUpdateApiUpdatesCheckGetResponses,
+  unknown,
+  ThrowOnError
+> =>
+  (options?.client ?? client).get<
+    CheckForUpdateApiUpdatesCheckGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/updates/check", ...options })
 
 /**
  * Get Model Capability
@@ -531,6 +572,31 @@ export const editApiAiEditPost = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/api/ai/edit",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Preview
+ */
+export const previewApiAgentPreviewPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PreviewApiAgentPreviewPostData, ThrowOnError>,
+): RequestResult<
+  PreviewApiAgentPreviewPostResponses,
+  PreviewApiAgentPreviewPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    PreviewApiAgentPreviewPostResponses,
+    PreviewApiAgentPreviewPostErrors,
+    ThrowOnError
+  >({
+    url: "/api/agent/preview",
     ...options,
     headers: {
       "Content-Type": "application/json",

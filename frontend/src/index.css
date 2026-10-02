@@ -211,6 +211,59 @@
   display: grid;
   gap: 18px;
 }
+
+.welcome-card,
+.update-banner {
+  width: min(1100px, calc(100% - 48px));
+  margin: 24px auto 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in oklch, var(--card), transparent 8%);
+  padding: 20px 24px;
+}
+
+.welcome-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.welcome-card h2 {
+  margin: 5px 0;
+}
+
+.welcome-card p {
+  max-width: 720px;
+  margin: 8px 0 0;
+}
+
+.welcome-card__hint {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+
+.welcome-card a,
+.update-banner a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.update-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 12px 18px;
+}
+
+.update-setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}
 .generation-panel textarea,
 .generation-panel input,
 .generation-panel select {
@@ -256,6 +309,44 @@
 
 .editor-workspace {
   min-height: calc(100vh - 76px);
+}
+.agent-panel {
+  width: min(320px, 100%);
+  padding: 18px;
+  border-left: 1px solid var(--border);
+  background: color-mix(in oklch, var(--card), transparent 18%);
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+.agent-panel textarea {
+  min-height: 90px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--card);
+  color: inherit;
+  font: inherit;
+}
+.agent-preview {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--secondary);
+}
+.agent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.muted {
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.error-message {
+  color: var(--destructive);
+  font-size: 13px;
 }
 .editor-toolbar {
   display: flex;

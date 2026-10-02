@@ -12,6 +12,7 @@ from filelock import FileLock
 from pydantic import BaseModel
 
 from alembic import command
+from app.api.agent import router as agent_router
 from app.api.ai import router as ai_router
 from app.api.assets import router as assets_router
 from app.api.decks import router as decks_router
@@ -29,11 +30,19 @@ from app.seed import seed_decks
 def migrate_database() -> None:
     backend_root = Path(__file__).resolve().parents[1]
     data_directory = settings.resolved_data_dir()
+    database_file = data_directory / "delta.db"
+    version_file = data_directory / ".schema-version"
     with FileLock(str(data_directory / ".migration.lock"), timeout=120):
+        if database_file.exists() and version_file.exists():
+            current = version_file.read_text(encoding="utf-8").strip()
+            if current != settings.app_version:
+                backup = data_directory / f"delta.db.backup-{int(database_file.stat().st_mtime)}"
+                backup.write_bytes(database_file.read_bytes())
         alembic_config = Config(str(backend_root / "alembic.ini"))
         alembic_config.set_main_option("script_location", str(backend_root / "alembic"))
         alembic_config.set_main_option("sqlalchemy.url", settings.resolved_database_url())
         command.upgrade(alembic_config, "head")
+        version_file.write_text(settings.app_version, encoding="utf-8")
 
 
 @asynccontextmanager
@@ -52,6 +61,7 @@ app.include_router(decks_router)
 app.include_router(settings_router)
 app.include_router(generation_router)
 app.include_router(ai_router)
+app.include_router(agent_router)
 app.include_router(assets_router)
 app.include_router(exports_router)
 app.include_router(imports_router)

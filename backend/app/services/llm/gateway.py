@@ -41,6 +41,7 @@ class LLMResult:
     total_tokens: int | None
     estimated_cost_usd: float | None
     usage_is_estimated: bool
+    tool_calls: Any = None
 
 
 class LLMError(RuntimeError):
@@ -132,8 +133,12 @@ class LLMClient:
             content = response.choices[0].message.content
         except (AttributeError, IndexError, TypeError) as exc:
             raise LLMError("The model returned an empty or invalid completion.") from exc
+        tool_calls = getattr(response.choices[0].message, "tool_calls", None)
         if not isinstance(content, str):
-            raise LLMError("The model returned a non-text completion.")
+            if tool_calls:
+                content = ""
+            else:
+                raise LLMError("The model returned a non-text completion.")
         usage = getattr(response, "usage", None)
         prompt_tokens = getattr(usage, "prompt_tokens", None)
         completion_tokens = getattr(usage, "completion_tokens", None)
@@ -151,6 +156,7 @@ class LLMClient:
             total_tokens=total_tokens,
             estimated_cost_usd=_cost_estimate(config, prompt_tokens, completion_tokens),
             usage_is_estimated=usage_is_estimated,
+            tool_calls=tool_calls,
         )
 
     async def stream(

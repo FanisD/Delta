@@ -43,6 +43,25 @@ function MainApp() {
   const [showSettings, setShowSettings] = useState(false)
   const [showGenerator, setShowGenerator] = useState(false)
   const [search, setSearch] = useState("")
+  const [appInfo, setAppInfo] = useState<{
+    version: string
+    data_directory: string
+  } | null>(null)
+  const [update, setUpdate] = useState<{
+    available: boolean
+    latest_version?: string | null
+    release_url?: string | null
+  } | null>(null)
+  const [showWelcome, setShowWelcome] = useState(
+    () => window.localStorage.getItem("delta.welcome.dismissed") !== "1",
+  )
+  const [updatesEnabled, setUpdatesEnabled] = useState(
+    () => window.localStorage.getItem("delta.updates.disabled") !== "1",
+  )
+  const [ollamaStatus, setOllamaStatus] = useState<
+    "checking" | "available" | "offline"
+  >("checking")
+  const [ollamaModelCount, setOllamaModelCount] = useState(0)
 
   const selectedDeck = useMemo(
     () => decks.find((deck) => deck.id === selectedId) ?? null,
@@ -88,6 +107,32 @@ function MainApp() {
       active = false
     }
   }, [loadAttempt])
+
+  useEffect(() => {
+    fetch("/api/settings/app")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((info) => info && setAppInfo(info))
+      .catch(() => undefined)
+  }, [])
+
+  useEffect(() => {
+    if (!updatesEnabled) return
+    fetch("/api/updates/check")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((result) => result?.available && setUpdate(result))
+      .catch(() => undefined)
+  }, [updatesEnabled])
+
+  useEffect(() => {
+    fetch("/api/providers/ollama/models")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("offline")
+        const payload = (await response.json()) as { models?: unknown[] }
+        setOllamaModelCount(payload.models?.length ?? 0)
+        setOllamaStatus("available")
+      })
+      .catch(() => setOllamaStatus("offline"))
+  }, [])
 
   useEffect(() => {
     if (!presenting || !selectedDeck) return
@@ -271,6 +316,64 @@ function MainApp() {
         />
       ) : (
         <section id="home" className="library">
+          {showWelcome && (
+            <aside className="welcome-card" role="status">
+              <div>
+                <span className="eyebrow">WELCOME TO DELTA</span>
+                <h2>Start locally, keep control.</h2>
+                <p>
+                  Use Ollama for local models, or open Settings to add an API
+                  provider. Your presentations stay in{" "}
+                  <code>
+                    {appInfo?.data_directory ?? "your app data folder"}
+                  </code>
+                  .
+                </p>
+                <p className="welcome-card__hint">
+                  Ollama status:{" "}
+                  <strong>
+                    {ollamaStatus === "checking"
+                      ? "checking…"
+                      : ollamaStatus === "available"
+                        ? `running (${ollamaModelCount} model${ollamaModelCount === 1 ? "" : "s"})`
+                        : "not running"}
+                  </strong>
+                  . Install it from{" "}
+                  <a href="https://ollama.com" target="_blank" rel="noreferrer">
+                    ollama.com
+                  </a>{" "}
+                  and pull a model such as <code>ollama pull qwen2.5:7b</code>.
+                </p>
+              </div>
+              <button
+                className="quiet-button"
+                onClick={() => {
+                  window.localStorage.setItem("delta.welcome.dismissed", "1")
+                  setShowWelcome(false)
+                }}
+              >
+                Got it
+              </button>
+            </aside>
+          )}
+          {update?.available && update.release_url && (
+            <aside className="update-banner" role="status">
+              <span>
+                Delta {update.latest_version} is available.
+                <a href={update.release_url} target="_blank" rel="noreferrer">
+                  {" "}
+                  Download it from Releases.
+                </a>
+              </span>
+              <button
+                className="text-button"
+                onClick={() => setUpdate(null)}
+                aria-label="Dismiss update notice"
+              >
+                Dismiss
+              </button>
+            </aside>
+          )}
           <div className="library-hero">
             <div className="library-hero__copy">
               <span className="eyebrow">YOUR IDEAS, BEAUTIFULLY ARRANGED</span>
@@ -415,7 +518,24 @@ function MainApp() {
         <span>
           Delta <span aria-hidden="true">·</span> Your ideas stay yours.
         </span>
-        <span>Thoughtfully made, locally.</span>
+        <span>
+          Thoughtfully made, locally.{" "}
+          <label className="update-setting">
+            <input
+              type="checkbox"
+              checked={updatesEnabled}
+              onChange={(event) => {
+                const enabled = event.target.checked
+                setUpdatesEnabled(enabled)
+                window.localStorage.setItem(
+                  "delta.updates.disabled",
+                  enabled ? "0" : "1",
+                )
+              }}
+            />
+            Check for updates
+          </label>
+        </span>
       </footer>
     </main>
   )

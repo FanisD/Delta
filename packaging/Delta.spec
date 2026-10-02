@@ -10,9 +10,12 @@ datas = [
     (str(backend_root / "alembic.ini"), "."),
     (str(backend_root / "alembic"), "alembic"),
     (str(frontend_dist), "frontend/dist"),
+    (str(backend_root / "app" / "prompts"), "app/prompts"),
+    (str(project_root / "shared" / "layouts.json"), "shared"),
+    (str(project_root / "packaging" / "version.txt"), "."),
 ]
 hiddenimports = []
-for package in ("aiosqlite", "litellm", "keyring", "platformdirs"):
+for package in ("aiosqlite", "litellm", "keyring", "platformdirs", "playwright"):
     package_datas, package_binaries, package_hiddenimports = collect_all(package)
     datas.extend(package_datas)
     hiddenimports.extend(package_hiddenimports)

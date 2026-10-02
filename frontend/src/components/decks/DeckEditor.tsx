@@ -13,6 +13,7 @@ import {
 import type { Card, DeckDocument, Layout, Theme } from "../../api"
 import { layoutSpecs } from "../../layouts"
 import { DeckCard } from "./DeckCard"
+import { AgentChat } from "../agent/AgentChat"
 
 type Props = {
   deck: DeckDocument
@@ -306,6 +307,7 @@ export function DeckEditor({ deck, onChange, onBack, onPresent }: Props) {
             )}
           </div>
         </main>
+        <AgentChat deck={deck} onAccept={update} />
       </div>
     </section>
   )

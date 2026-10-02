@@ -7,7 +7,7 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   bundle:
@@ -42,3 +42,42 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: dist/Delta/
+      - name: Archive and checksum
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            7z a "${{ matrix.artifact }}.zip" dist/Delta/*
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            # Keep the .app layout explicit so the same archive can be tested
+            # by release consumers on Intel and Apple Silicon runners.
+            mkdir -p "dist/Delta.app/Contents/MacOS"
+            cp -R dist/Delta/* "dist/Delta.app/Contents/MacOS/"
+            hdiutil create -volname Delta -srcfolder dist/Delta.app -ov -format UDZO "${{ matrix.artifact }}.dmg"
+          else
+            tar -czf "${{ matrix.artifact }}.tar.gz" -C dist Delta
+          fi
+          files=("${{ matrix.artifact }}".zip "${{ matrix.artifact }}".tar.gz "${{ matrix.artifact }}".dmg)
+          files=("${files[@]##*/}")
+          existing=()
+          for file in "${files[@]}"; do [[ -f "$file" ]] && existing+=("$file"); done
+          if command -v sha256sum >/dev/null; then sha256sum "${existing[@]}" > "${{ matrix.artifact }}.sha256"; else shasum -a 256 "${existing[@]}" > "${{ matrix.artifact }}.sha256"; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-release
+          path: |
+            ${{ matrix.artifact }}.*
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "*-release"
+          merge-multiple: true
+          path: release
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: release/*

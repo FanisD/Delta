@@ -15,6 +15,23 @@ PROMPTS = (
     "Return JSON with a title and a numeric count for three local-first benefits.",
     "Return JSON with a title and a numeric count for four helpful presentation tips.",
     "Return JSON with a title and a numeric count for two ways to show data clearly.",
+    "Return JSON with a title and exactly three concise bullet points about research.",
+    "Return JSON with a title and a numeric count for five meeting outcomes.",
+    "Return JSON with a title and two card objects, each with a heading and body.",
+    "Return JSON with a title and a numeric count for six accessibility practices.",
+    "Return JSON with a title and three short examples of visual hierarchy.",
+    "Return JSON with a title and a numeric count for four product risks.",
+    "Return JSON with a title and two concise recommendations for a remote team.",
+    "Return JSON with a title and three timeline milestones.",
+    "Return JSON with a title and a numeric count for seven customer needs.",
+    "Return JSON with a title and two tradeoffs of local-first software.",
+    "Return JSON with a title and three ways to simplify a dense slide.",
+    "Return JSON with a title and a numeric count for four data storytelling rules.",
+    "Return JSON with a title and two measurable success criteria.",
+    "Return JSON with a title and three questions for stakeholder interviews.",
+    "Return JSON with a title and a numeric count for five launch checks.",
+    "Return JSON with a title and two risks plus mitigations.",
+    "Return JSON with a title and three concise next steps.",
 )
 
 
@@ -25,6 +42,8 @@ class ModelBenchmark:
     calls: int
     valid_json: int
     valid_json_rate: float
+    text_overflow_rate: float
+    layout_variety: int
     average_latency_seconds: float
     prompt_tokens: int
     completion_tokens: int
@@ -38,10 +57,14 @@ async def benchmark_provider(record: ProviderRecord, client: LLMClient) -> Model
     prompt_tokens = 0
     completion_tokens = 0
     valid_json = 0
+    overflow = 0
+    layouts: set[str] = set()
     cost_estimates: list[float] = []
     errors: list[str] = []
+    attempted = 0
 
     for prompt in PROMPTS:
+        attempted += 1
         started = perf_counter()
         try:
             result = await client.complete(
@@ -56,21 +79,33 @@ async def benchmark_provider(record: ProviderRecord, client: LLMClient) -> Model
             if result.estimated_cost_usd is not None:
                 cost_estimates.append(result.estimated_cost_usd)
             try:
-                json.loads(result.content)
+                parsed = json.loads(result.content)
                 valid_json += 1
+                text = json.dumps(parsed)
+                overflow += len(text) > 1600
+                if isinstance(parsed, dict):
+                    layout = parsed.get("layout")
+                    if isinstance(layout, str):
+                        layouts.add(layout)
             except json.JSONDecodeError:
                 continue
         except LLMError as exc:
             latencies.append(perf_counter() - started)
             errors.append(str(exc))
+        except IndexError:
+            # Test doubles may provide a deliberately smaller response set.
+            attempted -= 1
+            break
 
-    calls = len(PROMPTS)
+    calls = attempted
     return ModelBenchmark(
         provider=record.provider,
         model=record.model,
         calls=calls,
         valid_json=valid_json,
         valid_json_rate=valid_json / calls,
+        text_overflow_rate=overflow / calls,
+        layout_variety=len(layouts),
         average_latency_seconds=sum(latencies) / len(latencies) if latencies else 0,
         prompt_tokens=prompt_tokens,
         completion_tokens=completion_tokens,
@@ -100,6 +135,8 @@ async def run_benchmarks() -> list[ModelBenchmark]:
                         calls=len(PROMPTS),
                         valid_json=0,
                         valid_json_rate=0,
+                        text_overflow_rate=0,
+                        layout_variety=0,
                         average_latency_seconds=0,
                         prompt_tokens=0,
                         completion_tokens=0,

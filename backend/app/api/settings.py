@@ -12,6 +12,7 @@ from app.core.secrets import EncryptionKeyNotConfigured, encrypt_secret
 from app.database import get_session
 from app.models.provider import ModelDefaultRecord, ProviderRecord, utc_now
 from app.schemas.providers import (
+    AppInfoResponse,
     ModelCapabilitiesResponse,
     ModelDefaultsUpdate,
     ModelRole,
@@ -23,6 +24,7 @@ from app.schemas.providers import (
     ProviderSettingsResponse,
     ProviderTestRequest,
     ProviderTestResponse,
+    UpdateCheckResponse,
 )
 from app.services.llm import LLMClient, LLMError, ProviderCallConfig
 from app.services.llm.capabilities import get_model_capabilities
@@ -35,6 +37,41 @@ MODEL_ROLES: tuple[ModelRole, ...] = ("outline", "content", "edit")
 KEY_REQUIRED_PROVIDERS: frozenset[ProviderId] = frozenset({"gemini", "anthropic", "xai"})
 llm_client = LLMClient()
 provider_id_adapter: TypeAdapter[ProviderId] = TypeAdapter(ProviderId)
+
+
+@router.get("/api/settings/app", response_model=AppInfoResponse)
+async def get_app_info() -> AppInfoResponse:
+    return AppInfoResponse(
+        version=settings.app_version,
+        data_directory=str(settings.resolved_data_dir()),
+        ollama_base_url=settings.ollama_base_url,
+    )
+
+
+@router.get("/api/updates/check", response_model=UpdateCheckResponse)
+async def check_for_update() -> UpdateCheckResponse:
+    """Read-only release check; failures are intentionally treated as no update."""
+    current = settings.app_version.lstrip("v")
+    try:
+        async with httpx.AsyncClient(
+            timeout=3,
+            headers={"Accept": "application/vnd.github+json", "User-Agent": "Delta"},
+        ) as client:
+            response = await client.get("https://api.github.com/repos/FanisD/Delta/releases/latest")
+            response.raise_for_status()
+            payload = response.json()
+            tag = str(payload.get("tag_name", "")).lstrip("v")
+            url = payload.get("html_url")
+            if not tag or not url:
+                return UpdateCheckResponse(current_version=current)
+            return UpdateCheckResponse(
+                current_version=current,
+                latest_version=tag,
+                release_url=str(url),
+                available=tag != current,
+            )
+    except (httpx.HTTPError, ValueError, TypeError):
+        return UpdateCheckResponse(current_version=current)
 
 
 def to_provider_configuration(record: ProviderRecord) -> ProviderConfiguration:
