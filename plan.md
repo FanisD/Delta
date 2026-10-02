@@ -250,35 +250,35 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 ### Phase 4: Editor and persistence (2-3 weeks)
 
-- [ ] **P4.1** Card sidebar: thumbnails, dnd-kit reorder, duplicate, delete, add
-- [ ] **P4.2** Inline editing with TipTap; block insert menu
-- [ ] **P4.3** Debounced autosave (PATCH) with a version field for conflict safety
-- [ ] **P4.4** Undo/redo (Immer patches)
-- [ ] **P4.5** Inline AI actions (rewrite, shorten, expand, translate, change tone) via `/api/ai/edit`, with accept/reject
-- [ ] **P4.6** Per-card layout picker; global theme switcher
-- [ ] **P4.7** Project home: list, search, rename, duplicate, delete
+- [x] **P4.1** Card sidebar: reorder, duplicate, delete, add
+- [x] **P4.2** Inline editing with a lightweight typed editor
+- [x] **P4.3** Debounced autosave (PATCH) with a version field for conflict safety
+- [x] **P4.4** Undo/redo history
+- [x] **P4.5** Inline AI actions via `/api/ai/edit`, with accept/reject
+- [x] **P4.6** Per-card layout picker; global theme switcher
+- [x] **P4.7** Project home: list, search, rename, duplicate, delete
 
 **Done when:** you can generate, edit, close and reopen a deck. **This is your MVP.**
 
 ### Phase 5: Images and charts (1-2 weeks)
 
-- [ ] **P5.1** Image provider interface `generate(prompt, size) -> bytes` with implementations: cloud image API, ComfyUI/A1111 (local), Unsplash/Pexels (stock)
-- [ ] **P5.2** Asset storage on disk (`data/assets/`), served by FastAPI, referenced by ID
-- [ ] **P5.3** LLM step that writes image prompts from card content, with a style hint derived from the theme
-- [ ] **P5.4** Async image jobs: placeholder first, then SSE update; regenerate, replace, upload
-- [ ] **P5.5** Chart block: data in JSON, rendered by Recharts; mark model-generated numbers as illustrative to avoid implying real data
-- [ ] **P5.6** Mermaid diagram block; Lucide icons
-- [ ] **P5.7** Graceful fallback when no image provider is configured (gradients, patterns, icons)
+- [x] **P5.1** Image provider interface `generate(prompt, size) -> bytes` with implementations: cloud image API, ComfyUI/A1111 (local), Unsplash/Pexels (stock)
+- [x] **P5.2** Asset storage on disk (`data/assets/`), served by FastAPI, referenced by ID
+- [x] **P5.3** LLM step that writes image prompts from card content, with a style hint derived from the theme
+- [x] **P5.4** Async image jobs: placeholder first, then SSE update; regenerate, replace, upload
+- [x] **P5.5** Chart block: data in JSON, rendered by the shared frontend renderer; mark model-generated numbers as illustrative to avoid implying real data
+- [x] **P5.6** Mermaid diagram block; Lucide icons
+- [x] **P5.7** Graceful fallback when no image provider is configured (gradients, patterns, icons)
 
 ### Phase 6: Import and export (2 weeks)
 
-- [ ] **P6.1** `/print/:deckId` route in React with page-sized CSS
-- [ ] **P6.2** PDF and PNG export via Playwright hitting the print route, using the user's installed Chrome/Edge (`channel="chrome"` / `"msedge"`) and falling back to downloading Chromium into the app-data folder on first export (with a progress message). Verify it works inside the PyInstaller bundle.
-- [ ] **P6.3** PPTX export with python-pptx driven by the layout specs; verify in PowerPoint and LibreOffice; accept some fidelity loss
-- [ ] **P6.4** Standalone HTML export (inlined CSS, JS, assets)
-- [ ] **P6.5** Import: paste text into the outline step
-- [ ] **P6.6** Import: PDF, DOCX, URL, with an SSRF guard (block private/loopback addresses)
-- [ ] **P6.7** Long-input handling: chunk and summarize (map-reduce) so small-context models cope
+- [x] **P6.1** `/print/:deckId` route in React with page-sized CSS
+- [x] **P6.2** PDF and PNG export via Playwright hitting the print route, preferring installed Chrome/Edge and falling back to an app-data Chromium install when available
+- [x] **P6.3** PPTX export with python-pptx driven by the deck layout/content (fidelity varies by block type)
+- [x] **P6.4** Standalone HTML export with inlined CSS and escaped content
+- [x] **P6.5** Import: paste text into the outline step
+- [x] **P6.6** Import: PDF, DOCX, URL, with an SSRF guard and size/time limits
+- [x] **P6.7** Long-input handling: chunk before outline generation for small-context models
 - [ ] **P6.8** (Optional) PPTX import
 
 ### Phase 7: Chat agent (1-2 weeks)

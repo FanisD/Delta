@@ -18,6 +18,7 @@ class DeckRecord(Base):
     title: Mapped[str] = mapped_column(String(240), nullable=False, index=True)
     theme: Mapped[str] = mapped_column(String(32), nullable=False)
     document: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    version: Mapped[int] = mapped_column(default=1, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, onupdate=utc_now

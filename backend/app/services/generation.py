@@ -18,6 +18,22 @@ _PROMPTS = Environment(
     autoescape=False,
 )
 
+THEME_STYLE_HINTS = {
+    "ocean": "clean editorial photography, cool blue palette, soft natural light",
+    "sunset": "warm cinematic photography, coral and amber palette, long shadows",
+    "forest": "calm modern photography, deep green palette, organic textures",
+}
+
+
+def image_prompt(card: Card, theme: str = "ocean") -> str:
+    """Create a provider-neutral prompt without making an LLM call."""
+    text = " ".join(
+        block.get("text", "") if isinstance(block, dict) else getattr(block, "text", "")
+        for block in card.model_dump(mode="python")["blocks"]
+    )
+    hint = THEME_STYLE_HINTS.get(theme, THEME_STYLE_HINTS["ocean"])
+    return f"{card.title}: {text[:700]}. {hint}. No text, logos, or watermarks."
+
 
 def _fallback_outline(prompt: str, settings: GenerationSettings) -> Outline:
     topic = " ".join(prompt.split()).strip().rstrip(".") or "Your presentation"

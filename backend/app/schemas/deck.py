@@ -121,6 +121,20 @@ class ChartBlock(StrictModel):
         return self
 
 
+class MermaidBlock(StrictModel):
+    type: Literal["mermaid"]
+    code: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=4000)]
+    caption: LabelText | None = None
+
+
+class IconBlock(StrictModel):
+    type: Literal["icon"]
+    name: Annotated[
+        str, StringConstraints(strip_whitespace=True, pattern=r"^[A-Za-z][A-Za-z0-9-]{0,48}$")
+    ]
+    label: LabelText | None = None
+
+
 Block = Annotated[
     HeadingBlock
     | ParagraphBlock
@@ -130,7 +144,9 @@ Block = Annotated[
     | StatBlock
     | TableBlock
     | ImageBlock
-    | ChartBlock,
+    | ChartBlock
+    | MermaidBlock
+    | IconBlock,
     Field(discriminator="type"),
 ]
 
@@ -152,6 +168,7 @@ class DeckUpdate(StrictModel):
     title: ShortText | None = None
     theme: Theme | None = None
     cards: list[Card] | None = Field(default=None, min_length=1, max_length=100)
+    version: int | None = Field(default=None, ge=1)
 
     @model_validator(mode="after")
     def validate_patch(self) -> DeckUpdate:
@@ -167,3 +184,4 @@ class DeckDocument(DeckCreate):
     id: str
     created_at: datetime
     updated_at: datetime
+    version: int = Field(default=1, ge=1)

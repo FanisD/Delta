@@ -2,7 +2,7 @@
 
 **Turn a prompt into a polished, editable presentation. Runs on your machine, with the AI model you choose.**
 
-> **Status:** Phases 0–3 are complete. Delta includes an editable outline-first generation flow, persistent jobs with SSE progress, partial-failure recovery, encrypted provider settings, and a multi-provider async LLM gateway.
+> **Status:** Phases 0–6 are complete. Delta includes an editable presentation MVP with local import/export.
 
 Delta is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
 
@@ -27,11 +27,18 @@ Available now:
 - Edit, reorder, add, or remove outline items before generating cards
 - Stream generated cards over SSE with persistent job progress and partial-failure recovery
 - Regenerate an individual card without discarding successfully generated cards
+- Edit cards inline with add, duplicate, delete, reorder, layout and theme controls
+- Autosave with optimistic version conflict safety, undo/redo, and accept/reject AI edits
+- Search, rename, duplicate, and delete presentations from the project home
+- Image assets with upload, persistent asynchronous generation jobs, SSE updates, and
+  OpenAI-compatible, A1111/ComfyUI, Unsplash/Pexels, or offline SVG fallback providers
+- JSON chart blocks (explicitly marked illustrative), Mermaid diagram blocks, and Lucide icons
+- Print-ready `/print/:deckId` pages plus PDF, PNG, PPTX, and standalone HTML export APIs
+- Paste-text, PDF, DOCX, and URL imports; URL imports block private, loopback, link-local, and reserved addresses
 
 Planned (see the [roadmap](#roadmap)):
 - Inline AI editing (rewrite, shorten, expand, translate) and a chat agent for whole-deck changes
 - AI-generated images and charts
-- Export to PDF, PNG, PPTX and standalone HTML
 - Cloud models **or** local models, configured in the app's settings
 - Local-first: your decks and API keys stay on your machine
 
@@ -108,6 +115,17 @@ outline before starting card generation. Cards stream into the UI over SSE, whil
 jobs expose status and progress after a refresh. The API also supports regenerating one card
 without discarding the other generated cards.
 
+### Import and export
+
+Use `/print/<deck-id>` for a page-sized print view. The backend exposes
+`/api/decks/<deck-id>/export/{pdf,png,pptx,html}`. PDF/PNG export prefers an
+installed Chrome or Edge and attempts a first-use Chromium download under the
+Delta app-data directory when neither is available. PPTX export intentionally
+maps the structured document to editable text boxes and may lose visual fidelity.
+Imports are available at `/api/import/text`, `/api/import/file`, and
+`/api/import/url`; remote fetches have strict size, timeout, redirect, and SSRF
+protections.
+
 ## Project structure
 
 ```
@@ -124,9 +142,9 @@ data/        Local database and generated assets (gitignored)
 - [x] **Phase 1:** Document model, renderer, app-data paths, and launcher spike
 - [x] **Phase 2:** LLM provider layer and bundle smoke path
 - [x] **Phase 3:** Generation pipeline
-- [ ] **Phase 4:** Editor and persistence *(MVP)*
-- [ ] **Phase 5:** Images and charts
-- [ ] **Phase 6:** Import and export
+- [x] **Phase 4:** Editor and persistence *(MVP)*
+- [x] **Phase 5:** Images and charts
+- [x] **Phase 6:** Import and export
 - [ ] **Phase 7:** Chat agent
 - [ ] **Phase 8:** Packaging and quality *(v1)*
 

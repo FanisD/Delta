@@ -5,6 +5,66 @@ export type ClientOptions = {
 }
 
 /**
+ * AIEditRequest
+ */
+export type AiEditRequest = {
+  /**
+   * Deck Id
+   */
+  deck_id: string
+  /**
+   * Card Id
+   */
+  card_id: string
+  /**
+   * Block Index
+   */
+  block_index: number
+  /**
+   * Action
+   */
+  action: "rewrite" | "shorten" | "expand" | "translate" | "tone"
+  /**
+   * Instruction
+   */
+  instruction?: string
+}
+
+/**
+ * AIEditResponse
+ */
+export type AiEditResponse = {
+  /**
+   * Text
+   */
+  text: string
+  /**
+   * Action
+   */
+  action: string
+}
+
+/**
+ * Body_import_file_api_import_file_post
+ */
+export type BodyImportFileApiImportFilePost = {
+  /**
+   * File
+   */
+  file: Blob | File
+}
+
+/**
+ * Body_upload_asset_api_assets_upload_post
+ */
+export type BodyUploadAssetApiAssetsUploadPost = {
+  /**
+   * File
+   */
+  file: Blob | File
+}
+
+/**
  * BulletsBlock
  */
 export type BulletsBlock = {
@@ -44,6 +104,8 @@ export type Card = {
     | TableBlock
     | ImageBlock
     | ChartBlock
+    | MermaidBlock
+    | IconBlock
   >
 }
 
@@ -141,6 +203,10 @@ export type DeckDocument = {
    * Updated At
    */
   updated_at: string
+  /**
+   * Version
+   */
+  version?: number
 }
 
 /**
@@ -156,6 +222,10 @@ export type DeckUpdate = {
    * Cards
    */
   cards?: Array<Card> | null
+  /**
+   * Version
+   */
+  version?: number | null
 }
 
 /**
@@ -278,6 +348,24 @@ export type HealthResponse = {
 }
 
 /**
+ * IconBlock
+ */
+export type IconBlock = {
+  /**
+   * Type
+   */
+  type: "icon"
+  /**
+   * Name
+   */
+  name: string
+  /**
+   * Label
+   */
+  label?: string | null
+}
+
+/**
  * ImageBlock
  */
 export type ImageBlock = {
@@ -300,6 +388,42 @@ export type ImageBlock = {
 }
 
 /**
+ * ImageJob
+ */
+export type ImageJob = {
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Status
+   */
+  status: string
+  /**
+   * Asset Id
+   */
+  asset_id?: string | null
+  /**
+   * Error
+   */
+  error?: string | null
+}
+
+/**
+ * ImageJobCreate
+ */
+export type ImageJobCreate = {
+  /**
+   * Prompt
+   */
+  prompt: string
+  /**
+   * Size
+   */
+  size?: string
+}
+
+/**
  * Layout
  */
 export type Layout =
@@ -311,6 +435,24 @@ export type Layout =
   | "image_right"
   | "quote"
   | "timeline"
+
+/**
+ * MermaidBlock
+ */
+export type MermaidBlock = {
+  /**
+   * Type
+   */
+  type: "mermaid"
+  /**
+   * Code
+   */
+  code: string
+  /**
+   * Caption
+   */
+  caption?: string | null
+}
 
 /**
  * ModelCapabilitiesResponse
@@ -616,6 +758,16 @@ export type TableBlock = {
 }
 
 /**
+ * TextImport
+ */
+export type TextImport = {
+  /**
+   * Text
+   */
+  text: string
+}
+
+/**
  * Theme
  */
 export type Theme = "ocean" | "sunset" | "forest"
@@ -789,6 +941,38 @@ export type UpdateDeckApiDecksDeckIdPatchResponses = {
 
 export type UpdateDeckApiDecksDeckIdPatchResponse =
   UpdateDeckApiDecksDeckIdPatchResponses[keyof UpdateDeckApiDecksDeckIdPatchResponses]
+
+export type DuplicateDeckApiDecksDeckIdDuplicatePostData = {
+  body?: never
+  path: {
+    /**
+     * Deck Id
+     */
+    deck_id: string
+  }
+  query?: never
+  url: "/api/decks/{deck_id}/duplicate"
+}
+
+export type DuplicateDeckApiDecksDeckIdDuplicatePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type DuplicateDeckApiDecksDeckIdDuplicatePostError =
+  DuplicateDeckApiDecksDeckIdDuplicatePostErrors[keyof DuplicateDeckApiDecksDeckIdDuplicatePostErrors]
+
+export type DuplicateDeckApiDecksDeckIdDuplicatePostResponses = {
+  /**
+   * Successful Response
+   */
+  201: DeckDocument
+}
+
+export type DuplicateDeckApiDecksDeckIdDuplicatePostResponse =
+  DuplicateDeckApiDecksDeckIdDuplicatePostResponses[keyof DuplicateDeckApiDecksDeckIdDuplicatePostResponses]
 
 export type GetModelCapabilityApiModelsCapabilitiesProviderGetData = {
   body?: never
@@ -1132,6 +1316,390 @@ export type JobEventsApiGenerationJobsJobIdEventsGetResponses = {
    */
   200: unknown
 }
+
+export type EditApiAiEditPostData = {
+  body: AiEditRequest
+  path?: never
+  query?: never
+  url: "/api/ai/edit"
+}
+
+export type EditApiAiEditPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type EditApiAiEditPostError =
+  EditApiAiEditPostErrors[keyof EditApiAiEditPostErrors]
+
+export type EditApiAiEditPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: AiEditResponse
+}
+
+export type EditApiAiEditPostResponse =
+  EditApiAiEditPostResponses[keyof EditApiAiEditPostResponses]
+
+export type UploadAssetApiAssetsUploadPostData = {
+  body: BodyUploadAssetApiAssetsUploadPost
+  path?: never
+  query?: never
+  url: "/api/assets/upload"
+}
+
+export type UploadAssetApiAssetsUploadPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type UploadAssetApiAssetsUploadPostError =
+  UploadAssetApiAssetsUploadPostErrors[keyof UploadAssetApiAssetsUploadPostErrors]
+
+export type UploadAssetApiAssetsUploadPostResponses = {
+  /**
+   * Response Upload Asset Api Assets Upload Post
+   *
+   * Successful Response
+   */
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type UploadAssetApiAssetsUploadPostResponse =
+  UploadAssetApiAssetsUploadPostResponses[keyof UploadAssetApiAssetsUploadPostResponses]
+
+export type GetAssetApiAssetsAssetIdGetData = {
+  body?: never
+  path: {
+    /**
+     * Asset Id
+     */
+    asset_id: string
+  }
+  query?: never
+  url: "/api/assets/{asset_id}"
+}
+
+export type GetAssetApiAssetsAssetIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetAssetApiAssetsAssetIdGetError =
+  GetAssetApiAssetsAssetIdGetErrors[keyof GetAssetApiAssetsAssetIdGetErrors]
+
+export type GetAssetApiAssetsAssetIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown
+}
+
+export type CreateImageJobApiAssetsJobsPostData = {
+  body: ImageJobCreate
+  path?: never
+  query?: never
+  url: "/api/assets/jobs"
+}
+
+export type CreateImageJobApiAssetsJobsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type CreateImageJobApiAssetsJobsPostError =
+  CreateImageJobApiAssetsJobsPostErrors[keyof CreateImageJobApiAssetsJobsPostErrors]
+
+export type CreateImageJobApiAssetsJobsPostResponses = {
+  /**
+   * Successful Response
+   */
+  202: ImageJob
+}
+
+export type CreateImageJobApiAssetsJobsPostResponse =
+  CreateImageJobApiAssetsJobsPostResponses[keyof CreateImageJobApiAssetsJobsPostResponses]
+
+export type GetImageJobApiAssetsJobsJobIdGetData = {
+  body?: never
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string
+  }
+  query?: never
+  url: "/api/assets/jobs/{job_id}"
+}
+
+export type GetImageJobApiAssetsJobsJobIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetImageJobApiAssetsJobsJobIdGetError =
+  GetImageJobApiAssetsJobsJobIdGetErrors[keyof GetImageJobApiAssetsJobsJobIdGetErrors]
+
+export type GetImageJobApiAssetsJobsJobIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ImageJob
+}
+
+export type GetImageJobApiAssetsJobsJobIdGetResponse =
+  GetImageJobApiAssetsJobsJobIdGetResponses[keyof GetImageJobApiAssetsJobsJobIdGetResponses]
+
+export type RegenerateImageJobApiAssetsJobsJobIdRegeneratePostData = {
+  body?: never
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string
+  }
+  query?: never
+  url: "/api/assets/jobs/{job_id}/regenerate"
+}
+
+export type RegenerateImageJobApiAssetsJobsJobIdRegeneratePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type RegenerateImageJobApiAssetsJobsJobIdRegeneratePostError =
+  RegenerateImageJobApiAssetsJobsJobIdRegeneratePostErrors[keyof RegenerateImageJobApiAssetsJobsJobIdRegeneratePostErrors]
+
+export type RegenerateImageJobApiAssetsJobsJobIdRegeneratePostResponses = {
+  /**
+   * Successful Response
+   */
+  202: ImageJob
+}
+
+export type RegenerateImageJobApiAssetsJobsJobIdRegeneratePostResponse =
+  RegenerateImageJobApiAssetsJobsJobIdRegeneratePostResponses[keyof RegenerateImageJobApiAssetsJobsJobIdRegeneratePostResponses]
+
+export type ImageJobEventsApiAssetsJobsJobIdEventsGetData = {
+  body?: never
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string
+  }
+  query?: never
+  url: "/api/assets/jobs/{job_id}/events"
+}
+
+export type ImageJobEventsApiAssetsJobsJobIdEventsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ImageJobEventsApiAssetsJobsJobIdEventsGetError =
+  ImageJobEventsApiAssetsJobsJobIdEventsGetErrors[keyof ImageJobEventsApiAssetsJobsJobIdEventsGetErrors]
+
+export type ImageJobEventsApiAssetsJobsJobIdEventsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown
+}
+
+export type ExportHtmlApiDecksDeckIdExportHtmlGetData = {
+  body?: never
+  path: {
+    /**
+     * Deck Id
+     */
+    deck_id: string
+  }
+  query?: never
+  url: "/api/decks/{deck_id}/export/html"
+}
+
+export type ExportHtmlApiDecksDeckIdExportHtmlGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ExportHtmlApiDecksDeckIdExportHtmlGetError =
+  ExportHtmlApiDecksDeckIdExportHtmlGetErrors[keyof ExportHtmlApiDecksDeckIdExportHtmlGetErrors]
+
+export type ExportHtmlApiDecksDeckIdExportHtmlGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown
+}
+
+export type ExportVisualApiDecksDeckIdExportKindGetData = {
+  body?: never
+  path: {
+    /**
+     * Deck Id
+     */
+    deck_id: string
+    /**
+     * Kind
+     */
+    kind: string
+  }
+  query?: never
+  url: "/api/decks/{deck_id}/export/{kind}"
+}
+
+export type ExportVisualApiDecksDeckIdExportKindGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ExportVisualApiDecksDeckIdExportKindGetError =
+  ExportVisualApiDecksDeckIdExportKindGetErrors[keyof ExportVisualApiDecksDeckIdExportKindGetErrors]
+
+export type ExportVisualApiDecksDeckIdExportKindGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown
+}
+
+export type ExportPptxApiDecksDeckIdExportPptxGetData = {
+  body?: never
+  path: {
+    /**
+     * Deck Id
+     */
+    deck_id: string
+  }
+  query?: never
+  url: "/api/decks/{deck_id}/export/pptx"
+}
+
+export type ExportPptxApiDecksDeckIdExportPptxGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ExportPptxApiDecksDeckIdExportPptxGetError =
+  ExportPptxApiDecksDeckIdExportPptxGetErrors[keyof ExportPptxApiDecksDeckIdExportPptxGetErrors]
+
+export type ExportPptxApiDecksDeckIdExportPptxGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown
+}
+
+export type ImportTextApiImportTextPostData = {
+  body: TextImport
+  path?: never
+  query?: never
+  url: "/api/import/text"
+}
+
+export type ImportTextApiImportTextPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ImportTextApiImportTextPostError =
+  ImportTextApiImportTextPostErrors[keyof ImportTextApiImportTextPostErrors]
+
+export type ImportTextApiImportTextPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: Outline
+}
+
+export type ImportTextApiImportTextPostResponse =
+  ImportTextApiImportTextPostResponses[keyof ImportTextApiImportTextPostResponses]
+
+export type ImportFileApiImportFilePostData = {
+  body: BodyImportFileApiImportFilePost
+  path?: never
+  query?: never
+  url: "/api/import/file"
+}
+
+export type ImportFileApiImportFilePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ImportFileApiImportFilePostError =
+  ImportFileApiImportFilePostErrors[keyof ImportFileApiImportFilePostErrors]
+
+export type ImportFileApiImportFilePostResponses = {
+  /**
+   * Successful Response
+   */
+  200: Outline
+}
+
+export type ImportFileApiImportFilePostResponse =
+  ImportFileApiImportFilePostResponses[keyof ImportFileApiImportFilePostResponses]
+
+export type ImportUrlApiImportUrlPostData = {
+  /**
+   * Payload
+   */
+  body: {
+    [key: string]: string
+  }
+  path?: never
+  query?: never
+  url: "/api/import/url"
+}
+
+export type ImportUrlApiImportUrlPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ImportUrlApiImportUrlPostError =
+  ImportUrlApiImportUrlPostErrors[keyof ImportUrlApiImportUrlPostErrors]
+
+export type ImportUrlApiImportUrlPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: Outline
+}
+
+export type ImportUrlApiImportUrlPostResponse =
+  ImportUrlApiImportUrlPostResponses[keyof ImportUrlApiImportUrlPostResponses]
 
 export type HealthHealthGetData = {
   body?: never

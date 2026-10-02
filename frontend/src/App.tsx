@@ -5,14 +5,13 @@ import {
   Expand,
   LayoutGrid,
   Maximize2,
-  Play,
   Presentation,
   Settings as SettingsIcon,
 } from "lucide-react"
 import {
   healthHealthGet,
   listDecksApiDecksGet,
-  updateDeckApiDecksDeckIdPatch,
+  deleteDeckApiDecksDeckIdDelete,
   type DeckDocument,
   type Theme,
 } from "./api"
@@ -20,6 +19,8 @@ import { client } from "./api/client.gen"
 import { DeckCard } from "./components/decks/DeckCard"
 import { ProviderSettings } from "./components/settings/ProviderSettings"
 import { GenerationPanel } from "./components/generation/GenerationPanel"
+import { DeckEditor } from "./components/decks/DeckEditor"
+import { PrintDeck } from "./components/decks/PrintDeck"
 
 client.setConfig({ baseUrl: window.location.origin })
 
@@ -30,11 +31,7 @@ const themes: { id: Theme; label: string }[] = [
   { id: "forest", label: "Forest" },
 ]
 
-function isTheme(value: string): value is Theme {
-  return themes.some((theme) => theme.id === value)
-}
-
-function App() {
+function MainApp() {
   const [decks, setDecks] = useState<DeckDocument[]>([])
   const [loadState, setLoadState] = useState<LoadState>("loading")
   const [loadError, setLoadError] = useState("")
@@ -42,10 +39,10 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [presenting, setPresenting] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
-  const [savingTheme, setSavingTheme] = useState(false)
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [showSettings, setShowSettings] = useState(false)
   const [showGenerator, setShowGenerator] = useState(false)
+  const [search, setSearch] = useState("")
 
   const selectedDeck = useMemo(
     () => decks.find((deck) => deck.id === selectedId) ?? null,
@@ -123,36 +120,21 @@ function App() {
     setPresenting(false)
   }
 
-  const changeTheme = async (theme: Theme) => {
-    if (!selectedDeck || selectedDeck.theme === theme || savingTheme) return
-    setSavingTheme(true)
-    const { data, error } = await updateDeckApiDecksDeckIdPatch({
-      path: { deck_id: selectedDeck.id },
-      body: { theme },
+  const removeDeck = async (deckId: string) => {
+    if (!window.confirm("Delete this presentation?")) return
+    const { error } = await deleteDeckApiDecksDeckIdDelete({
+      path: { deck_id: deckId },
     })
-    setSavingTheme(false)
-
-    if (error || !data) {
-      setLoadError("The theme could not be saved. Please try again.")
-      return
-    }
-
-    setDecks((current) =>
-      current.map((deck) => (deck.id === data.id ? data : deck)),
-    )
-    setLoadError("")
+    if (!error) setDecks((items) => items.filter((item) => item.id !== deckId))
   }
 
-  const startPresentation = async () => {
-    if (!selectedDeck) return
-    setSlideIndex(0)
-    setPresenting(true)
-    try {
-      await document.documentElement.requestFullscreen?.()
-    } catch {
-      setLoadError(
-        "Fullscreen is unavailable; presentation mode will continue in this tab.",
-      )
+  const duplicateDeck = async (deckId: string) => {
+    const response = await fetch(`/api/decks/${deckId}/duplicate`, {
+      method: "POST",
+    })
+    if (response.ok) {
+      const copy = await response.json()
+      setDecks((items) => [copy, ...items])
     }
   }
 
@@ -277,64 +259,16 @@ function App() {
           }}
         />
       ) : selectedDeck ? (
-        <section className="deck-workspace">
-          <div className="workspace-heading">
-            <button
-              className="quiet-button"
-              onClick={() => setSelectedId(null)}
-            >
-              <ArrowLeft size={17} />
-              All presentations
-            </button>
-            <div className="workspace-heading__actions">
-              <label className="theme-picker">
-                <span>Theme</span>
-                <select
-                  aria-label="Presentation theme"
-                  value={selectedDeck.theme}
-                  disabled={savingTheme}
-                  onChange={(event) => {
-                    if (isTheme(event.target.value)) {
-                      void changeTheme(event.target.value)
-                    }
-                  }}
-                >
-                  {themes.map((theme) => (
-                    <option key={theme.id} value={theme.id}>
-                      {theme.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                className="primary-button"
-                onClick={() => void startPresentation()}
-              >
-                <Play size={16} fill="currentColor" />
-                Present
-              </button>
-            </div>
-          </div>
-
-          {loadError && <p className="notice notice--error">{loadError}</p>}
-          <div className="deck-title-block">
-            <span className="eyebrow">
-              PRESENTATION · {selectedDeck.cards.length} CARDS
-            </span>
-            <h1>{selectedDeck.title}</h1>
-            <p>Scroll to explore, or present one card at a time.</p>
-          </div>
-          <div className="deck-scroll">
-            {selectedDeck.cards.map((card, index) => (
-              <DeckCard
-                card={card}
-                index={index}
-                total={selectedDeck.cards.length}
-                key={card.id ?? index}
-              />
-            ))}
-          </div>
-        </section>
+        <DeckEditor
+          deck={selectedDeck}
+          onChange={(deck) =>
+            setDecks((items) =>
+              items.map((item) => (item.id === deck.id ? deck : item)),
+            )
+          }
+          onBack={() => setSelectedId(null)}
+          onPresent={() => setPresenting(true)}
+        />
       ) : (
         <section id="home" className="library">
           <div className="library-hero">
@@ -368,6 +302,13 @@ function App() {
               <span className="eyebrow">A FEW IDEAS TO GET YOU STARTED</span>
               <h2>Your presentations</h2>
             </div>
+            <input
+              className="library-search"
+              placeholder="Search presentations…"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              aria-label="Search presentations"
+            />
             <button
               className="primary-button"
               onClick={() => setShowGenerator(true)}
@@ -404,43 +345,67 @@ function App() {
           )}
           {loadState === "ready" && decks.length > 0 && (
             <div className="deck-grid">
-              {decks.map((deck, index) => (
-                <button
-                  className="deck-tile"
-                  data-theme={deck.theme}
-                  key={deck.id}
-                  onClick={() => openDeck(deck.id)}
-                >
-                  <span
-                    className={`deck-tile__preview deck-tile__preview--${index % 3}`}
+              {decks
+                .filter((deck) =>
+                  deck.title.toLowerCase().includes(search.toLowerCase()),
+                )
+                .map((deck, index) => (
+                  <button
+                    className="deck-tile"
+                    data-theme={deck.theme}
+                    key={deck.id}
+                    onClick={() => openDeck(deck.id)}
                   >
-                    <span className="deck-tile__preview-label">
-                      A DELTA PRESENTATION
-                    </span>
-                    <strong>{deck.title}</strong>
-                    <span className="deck-tile__preview-lines">
-                      <i />
-                      <i />
-                      <i />
-                    </span>
-                    <span className="deck-tile__preview-mark">
-                      <Expand size={17} />
-                    </span>
-                  </span>
-                  <span className="deck-tile__details">
-                    <span>
+                    <span
+                      className={`deck-tile__preview deck-tile__preview--${index % 3}`}
+                    >
+                      <span className="deck-tile__preview-label">
+                        A DELTA PRESENTATION
+                      </span>
                       <strong>{deck.title}</strong>
-                      <small>
-                        {deck.cards.length} cards ·{" "}
-                        {themes.find((theme) => theme.id === deck.theme)
-                          ?.label ?? "Ocean"}{" "}
-                        theme
-                      </small>
+                      <span className="deck-tile__preview-lines">
+                        <i />
+                        <i />
+                        <i />
+                      </span>
+                      <span className="deck-tile__preview-mark">
+                        <Expand size={17} />
+                      </span>
                     </span>
-                    <Maximize2 size={16} />
-                  </span>
-                </button>
-              ))}
+                    <span className="deck-tile__details">
+                      <span>
+                        <strong>{deck.title}</strong>
+                        <small>
+                          {deck.cards.length} cards ·{" "}
+                          {themes.find((theme) => theme.id === deck.theme)
+                            ?.label ?? "Ocean"}{" "}
+                          theme
+                        </small>
+                      </span>
+                      <Maximize2 size={16} />
+                    </span>
+                    <span className="deck-tile__actions">
+                      <button
+                        className="quiet-button"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          void duplicateDeck(deck.id)
+                        }}
+                      >
+                        Duplicate
+                      </button>
+                      <button
+                        className="quiet-button"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          void removeDeck(deck.id)
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </span>
+                  </button>
+                ))}
             </div>
           )}
         </section>
@@ -454,6 +419,14 @@ function App() {
       </footer>
     </main>
   )
+}
+
+function App() {
+  const printMatch = window.location.pathname.match(/^\/print\/([^/]+)\/?$/)
+  if (printMatch) {
+    return <PrintDeck deckId={decodeURIComponent(printMatch[1])} />
+  }
+  return <MainApp />
 }
 
 export default App

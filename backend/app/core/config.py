@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = Field(default=90, gt=0)
     llm_max_retries: int = Field(default=2, ge=0, le=8)
     llm_validation_retries: int = Field(default=2, ge=0, le=8)
+    image_provider: str = "fallback"
+    image_provider_url: str | None = None
+    image_provider_api_key: str | None = None
+    image_provider_model: str = "dall-e-3"
 
     @field_validator("data_dir", "frontend_dir", mode="before")
     @classmethod

@@ -254,6 +254,170 @@
   flex-direction: column;
 }
 
+.editor-workspace {
+  min-height: calc(100vh - 76px);
+}
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklch, var(--card), transparent 10%);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.editor-title {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 650;
+  color: inherit;
+  padding: 8px;
+}
+.save-status {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.editor-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 130px);
+}
+.card-sidebar {
+  padding: 20px 14px;
+  border-right: 1px solid var(--border);
+  background: color-mix(in oklch, var(--muted), transparent 35%);
+}
+.sidebar-heading {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px 12px;
+}
+.card-sidebar__item {
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 8px;
+  border-radius: 9px;
+  margin: 4px 0;
+  font-size: 13px;
+}
+.card-sidebar__item.is-selected {
+  background: var(--card);
+  box-shadow: 0 1px 4px color-mix(in oklch, var(--foreground), transparent 90%);
+}
+.card-sidebar__item > span {
+  color: var(--muted-foreground);
+}
+.sidebar-actions {
+  display: flex;
+  gap: 3px;
+  opacity: 0.4;
+}
+.card-sidebar__item:hover .sidebar-actions {
+  opacity: 1;
+}
+.sidebar-actions button,
+.icon-button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+}
+.editor-canvas {
+  padding: 20px clamp(18px, 5vw, 72px) 80px;
+}
+.editor-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+.editor-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.editor-controls select,
+.library-search {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--card);
+  color: inherit;
+}
+.editable-card {
+  max-width: 1050px;
+  margin: auto;
+}
+.editable-card .deck-card {
+  margin: 0;
+}
+.inline-card-title,
+.inline-block-editor {
+  display: block;
+  width: min(850px, 100%);
+  margin: 14px auto 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: inherit;
+  padding: 10px;
+  font: inherit;
+}
+.inline-block-editor {
+  min-height: 100px;
+  resize: vertical;
+}
+.ai-suggestion {
+  max-width: 850px;
+  margin: 14px auto;
+  padding: 15px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: color-mix(in oklch, var(--accent), transparent 65%);
+}
+.ai-suggestion p {
+  margin: 8px 0 14px;
+}
+.library-search {
+  width: min(420px, 100%);
+  margin: 0 0 22px;
+}
+@media (max-width: 760px) {
+  .editor-body {
+    grid-template-columns: 1fr;
+  }
+  .card-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    gap: 5px;
+  }
+  .sidebar-heading {
+    min-width: 70px;
+  }
+  .card-sidebar__item {
+    min-width: 170px;
+  }
+  .editor-toolbar {
+    flex-wrap: wrap;
+  }
+}
+
 .app-header {
   height: 76px;
   padding: 0 clamp(24px, 6vw, 96px);
@@ -1519,5 +1683,39 @@
 
   .app-footer > span:last-child {
     display: none;
+  }
+}
+/* Print/export pages use a stable 16:9 page and never include editor chrome. */
+.print-deck {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  background: #e9edf3;
+}
+.print-deck .deck-card {
+  width: 297mm;
+  height: 167mm;
+  min-height: 167mm;
+  margin: 0 auto;
+  break-after: page;
+  page-break-after: always;
+  border-radius: 0;
+  box-shadow: none;
+}
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+@media print {
+  html,
+  body,
+  #root,
+  .print-deck {
+    margin: 0;
+    background: white;
+  }
+  .print-deck .deck-card {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
