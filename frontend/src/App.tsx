@@ -270,7 +270,12 @@ function App() {
       {showSettings ? (
         <ProviderSettings onBack={() => setShowSettings(false)} />
       ) : showGenerator ? (
-        <GenerationPanel onDone={() => { setShowGenerator(false); setLoadAttempt((attempt) => attempt + 1) }} />
+        <GenerationPanel
+          onDone={() => {
+            setShowGenerator(false)
+            setLoadAttempt((attempt) => attempt + 1)
+          }}
+        />
       ) : selectedDeck ? (
         <section className="deck-workspace">
           <div className="workspace-heading">
@@ -363,7 +368,12 @@ function App() {
               <span className="eyebrow">A FEW IDEAS TO GET YOU STARTED</span>
               <h2>Your presentations</h2>
             </div>
-            <button className="primary-button" onClick={() => setShowGenerator(true)}>Create with AI</button>
+            <button
+              className="primary-button"
+              onClick={() => setShowGenerator(true)}
+            >
+              Create with AI
+            </button>
             <span className="library-heading__count">
               <LayoutGrid size={15} />
               {decks.length} {decks.length === 1 ? "story" : "stories"}

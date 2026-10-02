@@ -220,12 +220,34 @@
   padding: 11px 13px;
   color: inherit;
 }
-.generation-panel > textarea { min-height: 130px; font: inherit; }
-.generation-settings { display: flex; flex-wrap: wrap; gap: 12px; }
-.generation-settings label { display: grid; gap: 5px; font-size: 12px; color: var(--muted-foreground); }
-.outline-list { display: grid; gap: 10px; }
-.outline-item { display: grid; grid-template-columns: 1fr 2fr auto auto auto; gap: 8px; align-items: start; }
-.outline-item textarea { min-height: 44px; }
+.generation-panel > textarea {
+  min-height: 130px;
+  font: inherit;
+}
+.generation-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.generation-settings label {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.outline-list {
+  display: grid;
+  gap: 10px;
+}
+.outline-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto auto auto;
+  gap: 8px;
+  align-items: start;
+}
+.outline-item textarea {
+  min-height: 44px;
+}
 
 .presentation-app {
   display: flex;
