@@ -137,5 +137,5 @@ def test_concurrent_database_startup_migrates_once(
             "SELECT version_num FROM alembic_version"
         ).scalar_one()
         tables: list[str] = inspect(connection).get_table_names()
-    assert revision == "0002_llm_provider_settings"
-    assert {"decks", "llm_providers", "llm_model_defaults"}.issubset(tables)
+    assert revision == "0003_generation_jobs"
+    assert {"decks", "llm_providers", "llm_model_defaults", "generation_jobs"}.issubset(tables)
