@@ -34,7 +34,7 @@ Available now:
   OpenAI-compatible, A1111/ComfyUI, Unsplash/Pexels, or offline SVG fallback providers
 - JSON chart blocks (explicitly marked illustrative), Mermaid diagram blocks, and Lucide icons
 - Print-ready `/print/:deckId` pages plus PDF, PNG, PPTX, and standalone HTML export APIs
-- Paste-text, PDF, DOCX, and URL imports; URL imports block private, loopback, link-local, and reserved addresses
+- Paste-text, PDF, PPTX, DOCX, and URL imports; PPTX imports extract slide and table text, while URL imports block private, loopback, link-local, and reserved addresses
 
 Planned (see the [roadmap](#roadmap)):
 - Inline AI editing (rewrite, shorten, expand, translate) and a chat agent for whole-deck changes

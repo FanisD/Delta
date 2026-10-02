@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import ipaddress
 import socket
 from urllib.parse import urlparse
@@ -101,17 +102,33 @@ async def import_file(file: UploadFile = File(...)) -> Outline:  # noqa: B008
             from pypdf import PdfReader
 
             text = "\n".join(
-                page.extract_text() or ""
-                for page in PdfReader(__import__("io").BytesIO(data)).pages
+                page.extract_text() or "" for page in PdfReader(io.BytesIO(data)).pages
             )
         elif name.endswith(".docx"):
             from docx import Document
 
-            text = "\n".join(p.text for p in Document(__import__("io").BytesIO(data)).paragraphs)
+            text = "\n".join(p.text for p in Document(io.BytesIO(data)).paragraphs)
+        elif name.endswith(".pptx"):
+            from pptx import Presentation
+
+            presentation = Presentation(io.BytesIO(data))
+            slide_text: list[str] = []
+            for slide_number, slide in enumerate(presentation.slides, start=1):
+                parts = [f"Slide {slide_number}"]
+                for shape in slide.shapes:
+                    if hasattr(shape, "text") and shape.text.strip():
+                        parts.append(shape.text.strip())
+                    if shape.has_table:
+                        for row in shape.table.rows:
+                            cells = [cell.text.strip() for cell in row.cells]
+                            if any(cells):
+                                parts.append(" | ".join(cells))
+                slide_text.append("\n".join(parts))
+            text = "\n\n".join(slide_text)
         elif name.endswith((".txt", ".md")):
             text = data.decode("utf-8", errors="replace")
         else:
-            raise HTTPException(415, "Supported files are PDF, DOCX, TXT, and Markdown")
+            raise HTTPException(415, "Supported files are PDF, PPTX, DOCX, TXT, and Markdown")
     except ImportError as exc:
         raise HTTPException(503, "The optional parser for this file type is not installed") from exc
     return await _outline(text)

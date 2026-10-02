@@ -279,7 +279,7 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 - [x] **P6.5** Import: paste text into the outline step
 - [x] **P6.6** Import: PDF, DOCX, URL, with an SSRF guard and size/time limits
 - [x] **P6.7** Long-input handling: chunk before outline generation for small-context models
-- [ ] **P6.8** (Optional) PPTX import
+- [x] **P6.8** (Optional) PPTX import (text and table extraction into the outline flow)
 
 ### Phase 7: Chat agent (1-2 weeks)
 
