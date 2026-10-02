@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file="../.env", env_prefix="APP_", extra="ignore")
 
     app_name: str = "Delta"
+    app_version: str = "0.1.0"
     data_dir: Path | None = None
     database_url: str | None = None
     frontend_dir: Path | None = None

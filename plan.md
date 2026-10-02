@@ -283,29 +283,29 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 ### Phase 7: Chat agent (1-2 weeks)
 
-- [ ] **P7.1** Define edit operations (JSON Patch or custom): `add_card`, `update_block`, `move_card`, `delete_card`, `set_layout`, `set_theme`
-- [ ] **P7.2** Agent loop: LLM tool calling, validate ops, apply to a copy, return a preview
-- [ ] **P7.3** Chat panel UI with accept/reject; one accepted turn equals one undo step
-- [ ] **P7.4** Fallback for models without tool calling: ask for an ops list via structured output
-- [ ] **P7.5** Guardrails: max ops per turn, schema validation, confirmation before deletions
+- [x] **P7.1** Define edit operations (JSON Patch or custom): `add_card`, `update_block`, `move_card`, `delete_card`, `set_layout`, `set_theme`
+- [x] **P7.2** Agent loop: LLM tool calling, validate ops, apply to a copy, return a preview
+- [x] **P7.3** Chat panel UI with accept/reject; one accepted turn equals one undo step
+- [x] **P7.4** Fallback for models without tool calling: ask for an ops list via structured output
+- [x] **P7.5** Guardrails: max ops per turn, schema validation, confirmation before deletions
 
 ### Phase 8: Launcher packaging, quality and first release (2-3 weeks)
 
 **Packaging and release**
-- [ ] **P8.1** Launcher hardening: free-port selection with fallback, single-instance lock (a second launch just opens the browser tab to the running app), graceful shutdown (console window or tray icon with "Quit"), log file in the app-data folder, `--port` / `--no-browser` flags
+- [x] **P8.1** Launcher hardening: free-port selection with fallback, single-instance lock (a second launch just opens the browser tab to the running app), graceful shutdown (console window or tray icon with "Quit"), log file in the app-data folder, `--port` / `--no-browser` flags
 - [ ] **P8.2** First-run experience: welcome screen; detect Ollama (running? models pulled? link to install) or guide the user through adding an API key; show where their data is stored
-- [ ] **P8.3** Final PyInstaller spec: `--onedir` (faster startup and fewer antivirus false positives than `--onefile`); bundle the built frontend, prompts, layout specs and Alembic migrations; `collect-all` / hidden imports for LiteLLM and Playwright; app icon and version stamp
-- [ ] **P8.4** Automatic DB migrations on startup (Alembic `upgrade head`), with a backup copy of the DB file before migrating when the app version changed
+- [x] **P8.3** Final PyInstaller spec: `--onedir` (faster startup and fewer antivirus false positives than `--onefile`); bundle the built frontend, prompts, layout specs and Alembic migrations; `collect-all` / hidden imports for LiteLLM and Playwright; app icon and version stamp
+- [x] **P8.4** Automatic DB migrations on startup (Alembic `upgrade head`), with a backup copy of the DB file before migrating when the app version changed
 - [ ] **P8.5** Per-OS artifacts on CI: Windows (zip, optional Inno Setup installer), macOS (`.app` in a `.dmg`; Apple Silicon and Intel built separately or via a universal2 Python), Linux (`tar.gz`, optional AppImage). Smoke-test every artifact: launch it, wait for `/api/health`, shut it down.
-- [ ] **P8.6** Release workflow: on a `v*` tag, build all artifacts, generate SHA256 checksums, attach everything to a GitHub Release with generated notes
-- [ ] **P8.7** Signing (optional for early releases): document the Windows SmartScreen and macOS Gatekeeper "unidentified developer" steps; later add a Windows code-signing certificate and Apple Developer ID plus notarization
+- [x] **P8.6** Release workflow: on a `v*` tag, build all artifacts, generate SHA256 checksums, attach everything to a GitHub Release with generated notes
+- [x] **P8.7** Signing (optional for early releases): document the Windows SmartScreen and macOS Gatekeeper "unidentified developer" steps; later add a Windows code-signing certificate and Apple Developer ID plus notarization
 - [ ] **P8.8** Update check: on launch, ask the GitHub Releases API for the latest version and show a non-intrusive "new version available" banner linking to the download page. No auto-updater in v1; provide a setting to turn the check off.
 
 **Quality and docs**
 - [ ] **P8.9** Eval suite (about 20 prompts per model): valid-JSON rate, text overflow rate, layout variety, latency
 - [ ] **P8.10** E2E tests (Playwright): generate, edit, export
-- [ ] **P8.11** Error UX: missing key, Ollama offline, model not pulled, context overflow, port in use
-- [ ] **P8.12** Docs: per-OS quickstart, "add a provider", troubleshooting (antivirus, ports, Ollama), where data lives; add a Download section to the README
+- [x] **P8.11** Error UX: missing key, Ollama offline, model not pulled, context overflow, port in use
+- [x] **P8.12** Docs: per-OS quickstart, "add a provider", troubleshooting (antivirus, ports, Ollama), where data lives; add a Download section to the README
 - [ ] **P8.13** Download page (GitHub Pages or a simple site): per-OS buttons, screenshots, checksums
 - [ ] **P8.14** (Optional) Dockerfile and `docker-compose.yml` (app plus optional `ollama` profile) for contributors and self-hosting
 

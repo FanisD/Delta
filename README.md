@@ -2,7 +2,7 @@
 
 **Turn a prompt into a polished, editable presentation. Runs on your machine, with the AI model you choose.**
 
-> **Status:** Phases 0–6 are complete. Delta includes an editable presentation MVP with local import/export.
+> **Status:** Phases 0–8 are in active release preparation. Delta includes an editable presentation MVP with a reviewable chat agent and local import/export.
 
 Delta is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
 
@@ -29,6 +29,7 @@ Available now:
 - Regenerate an individual card without discarding successfully generated cards
 - Edit cards inline with add, duplicate, delete, reorder, layout and theme controls
 - Autosave with optimistic version conflict safety, undo/redo, and accept/reject AI edits
+- Reviewable whole-deck chat edits with bounded operations and deletion confirmation
 - Search, rename, duplicate, and delete presentations from the project home
 - Image assets with upload, persistent asynchronous generation jobs, SSE updates, and
   OpenAI-compatible, A1111/ComfyUI, Unsplash/Pexels, or offline SVG fallback providers
@@ -37,7 +38,6 @@ Available now:
 - Paste-text, PDF, PPTX, DOCX, and URL imports; PPTX imports extract slide and table text, while URL imports block private, loopback, link-local, and reserved addresses
 
 Planned (see the [roadmap](#roadmap)):
-- Inline AI editing (rewrite, shorten, expand, translate) and a chat agent for whole-deck changes
 - AI-generated images and charts
 - Cloud models **or** local models, configured in the app's settings
 - Local-first: your decks and API keys stay on your machine
@@ -89,6 +89,20 @@ The frontend is available at <http://127.0.0.1:5173>; the API and OpenAPI schema
 are served at <http://127.0.0.1:8000>. Run `make gen-api` to regenerate the
 typed frontend API client from the backend contract, and `make check` to run
 linting, formatting checks, type checks, and tests.
+
+### Download and launcher
+
+Tagged releases publish per-platform `Delta` archives from GitHub Actions. Extract
+the archive and double-click `Delta` (or run `Delta --no-browser` for server-only
+launch). The launcher chooses a free loopback port, writes logs and the database
+under the platform's Delta application-data directory, and a second launch opens
+the existing tab. `--port 8000` requests a preferred port but falls back safely.
+
+Unsigned early builds may show Windows SmartScreen (**More info → Run anyway**) or
+macOS Gatekeeper (**Control-click → Open** once). Linux users should run the
+extracted executable and verify the published SHA256 checksum if antivirus flags it.
+If Ollama is offline, start it and pull a model (`ollama pull qwen2.5:7b`) before
+selecting it in Settings.
 
 ### Model providers
 
@@ -145,8 +159,8 @@ data/        Local database and generated assets (gitignored)
 - [x] **Phase 4:** Editor and persistence *(MVP)*
 - [x] **Phase 5:** Images and charts
 - [x] **Phase 6:** Import and export
-- [ ] **Phase 7:** Chat agent
-- [ ] **Phase 8:** Packaging and quality *(v1)*
+- [x] **Phase 7:** Chat agent
+- [ ] **Phase 8:** Packaging and quality *(launcher, packaging workflow, and docs implemented; update UI, first-run screen, and full cross-platform release validation remain)*
 
 The full task breakdown lives in [`plan.md`](plan.md).
 

@@ -80,6 +80,9 @@ import type {
   OutlineApiGenerationOutlinePostData,
   OutlineApiGenerationOutlinePostErrors,
   OutlineApiGenerationOutlinePostResponses,
+  PreviewApiAgentPreviewPostData,
+  PreviewApiAgentPreviewPostErrors,
+  PreviewApiAgentPreviewPostResponses,
   RecoverJobApiGenerationJobsJobIdRecoverPostData,
   RecoverJobApiGenerationJobsJobIdRecoverPostErrors,
   RecoverJobApiGenerationJobsJobIdRecoverPostResponses,
@@ -531,6 +534,31 @@ export const editApiAiEditPost = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/api/ai/edit",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Preview
+ */
+export const previewApiAgentPreviewPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PreviewApiAgentPreviewPostData, ThrowOnError>,
+): RequestResult<
+  PreviewApiAgentPreviewPostResponses,
+  PreviewApiAgentPreviewPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    PreviewApiAgentPreviewPostResponses,
+    PreviewApiAgentPreviewPostErrors,
+    ThrowOnError
+  >({
+    url: "/api/agent/preview",
     ...options,
     headers: {
       "Content-Type": "application/json",

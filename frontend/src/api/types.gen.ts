@@ -45,6 +45,73 @@ export type AiEditResponse = {
 }
 
 /**
+ * AddCardOperation
+ */
+export type AddCardOperation = {
+  /**
+   * Op
+   */
+  op: "add_card"
+  card: Card
+  /**
+   * Index
+   */
+  index?: number | null
+}
+
+/**
+ * AgentPreview
+ */
+export type AgentPreview = {
+  deck: DeckDocument
+  /**
+   * Operations
+   */
+  operations: Array<
+    | AddCardOperation
+    | UpdateBlockOperation
+    | MoveCardOperation
+    | DeleteCardOperation
+    | SetLayoutOperation
+    | SetThemeOperation
+  >
+  /**
+   * Requires Confirmation
+   */
+  requires_confirmation?: boolean
+  /**
+   * Warnings
+   */
+  warnings?: Array<string>
+}
+
+/**
+ * AgentRequest
+ */
+export type AgentRequest = {
+  deck: DeckDocument
+  /**
+   * Message
+   */
+  message: string
+  /**
+   * Operations
+   */
+  operations?: Array<
+    | AddCardOperation
+    | UpdateBlockOperation
+    | MoveCardOperation
+    | DeleteCardOperation
+    | SetLayoutOperation
+    | SetThemeOperation
+  > | null
+  /**
+   * Confirm Deletions
+   */
+  confirm_deletions?: boolean
+}
+
+/**
  * Body_import_file_api_import_file_post
  */
 export type BodyImportFileApiImportFilePost = {
@@ -226,6 +293,24 @@ export type DeckUpdate = {
    * Version
    */
   version?: number | null
+}
+
+/**
+ * DeleteCardOperation
+ */
+export type DeleteCardOperation = {
+  /**
+   * Op
+   */
+  op: "delete_card"
+  /**
+   * Card Id
+   */
+  card_id: string
+  /**
+   * Confirmed
+   */
+  confirmed?: boolean
 }
 
 /**
@@ -498,6 +583,24 @@ export type ModelDefaultsUpdate = {
 }
 
 /**
+ * MoveCardOperation
+ */
+export type MoveCardOperation = {
+  /**
+   * Op
+   */
+  op: "move_card"
+  /**
+   * Card Id
+   */
+  card_id: string
+  /**
+   * To Index
+   */
+  to_index: number
+}
+
+/**
  * OllamaModel
  */
 export type OllamaModel = {
@@ -718,6 +821,32 @@ export type RegenerateCardRequest = {
 }
 
 /**
+ * SetLayoutOperation
+ */
+export type SetLayoutOperation = {
+  /**
+   * Op
+   */
+  op: "set_layout"
+  /**
+   * Card Id
+   */
+  card_id: string
+  layout: Layout
+}
+
+/**
+ * SetThemeOperation
+ */
+export type SetThemeOperation = {
+  /**
+   * Op
+   */
+  op: "set_theme"
+  theme: Theme
+}
+
+/**
  * StatBlock
  */
 export type StatBlock = {
@@ -771,6 +900,61 @@ export type TextImport = {
  * Theme
  */
 export type Theme = "ocean" | "sunset" | "forest"
+
+/**
+ * UpdateBlockOperation
+ */
+export type UpdateBlockOperation = {
+  /**
+   * Op
+   */
+  op: "update_block"
+  /**
+   * Card Id
+   */
+  card_id: string
+  /**
+   * Block Index
+   */
+  block_index: number
+  /**
+   * Block
+   */
+  block:
+    | ({
+        type: "heading"
+      } & HeadingBlock)
+    | ({
+        type: "paragraph"
+      } & ParagraphBlock)
+    | ({
+        type: "bullets"
+      } & BulletsBlock)
+    | ({
+        type: "columns"
+      } & ColumnsBlock)
+    | ({
+        type: "quote"
+      } & QuoteBlock)
+    | ({
+        type: "stat"
+      } & StatBlock)
+    | ({
+        type: "table"
+      } & TableBlock)
+    | ({
+        type: "image"
+      } & ImageBlock)
+    | ({
+        type: "chart"
+      } & ChartBlock)
+    | ({
+        type: "mermaid"
+      } & MermaidBlock)
+    | ({
+        type: "icon"
+      } & IconBlock)
+}
 
 /**
  * ValidationError
@@ -1343,6 +1527,33 @@ export type EditApiAiEditPostResponses = {
 
 export type EditApiAiEditPostResponse =
   EditApiAiEditPostResponses[keyof EditApiAiEditPostResponses]
+
+export type PreviewApiAgentPreviewPostData = {
+  body: AgentRequest
+  path?: never
+  query?: never
+  url: "/api/agent/preview"
+}
+
+export type PreviewApiAgentPreviewPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type PreviewApiAgentPreviewPostError =
+  PreviewApiAgentPreviewPostErrors[keyof PreviewApiAgentPreviewPostErrors]
+
+export type PreviewApiAgentPreviewPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: AgentPreview
+}
+
+export type PreviewApiAgentPreviewPostResponse =
+  PreviewApiAgentPreviewPostResponses[keyof PreviewApiAgentPreviewPostResponses]
 
 export type UploadAssetApiAssetsUploadPostData = {
   body: BodyUploadAssetApiAssetsUploadPost
