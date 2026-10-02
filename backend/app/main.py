@@ -5,6 +5,7 @@ from pathlib import Path
 
 from alembic.config import Config
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from filelock import FileLock
 from pydantic import BaseModel
 
@@ -19,11 +20,11 @@ from app.seed import seed_decks
 
 def migrate_database() -> None:
     backend_root = Path(__file__).resolve().parents[1]
-    data_directory = backend_root.parent / "data"
-    data_directory.mkdir(parents=True, exist_ok=True)
+    data_directory = settings.resolved_data_dir()
     with FileLock(str(data_directory / ".migration.lock"), timeout=120):
         alembic_config = Config(str(backend_root / "alembic.ini"))
         alembic_config.set_main_option("script_location", str(backend_root / "alembic"))
+        alembic_config.set_main_option("sqlalchemy.url", settings.resolved_database_url())
         command.upgrade(alembic_config, "head")
 
 
@@ -53,3 +54,14 @@ def health() -> HealthResponse:
 @app.get("/api/layouts", tags=["layouts"])
 def get_layouts() -> list[dict[str, object]]:
     return load_layouts()
+
+
+def _frontend_directory() -> Path:
+    if settings.frontend_dir:
+        return settings.frontend_dir
+    return Path(__file__).resolve().parents[2] / "frontend" / "dist"
+
+
+frontend_directory = _frontend_directory()
+if frontend_directory.is_dir():
+    app.mount("/", StaticFiles(directory=frontend_directory, html=True), name="frontend")

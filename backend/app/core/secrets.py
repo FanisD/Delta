@@ -1,6 +1,7 @@
 from cryptography.fernet import Fernet, InvalidToken
 
 from app.core.config import settings
+from app.core.keyring_store import get_secret
 
 
 class EncryptionKeyNotConfigured(RuntimeError):
@@ -29,3 +30,11 @@ def decrypt_secret(value: str) -> str:
         raise EncryptionKeyNotConfigured(
             "APP_ENCRYPTION_KEY cannot decrypt the saved provider key."
         ) from exc
+
+
+def load_provider_secret(provider: str, encrypted_fallback: str | None) -> str | None:
+    """Read the OS keyring first, then the encrypted database fallback."""
+
+    return get_secret(provider) or (
+        decrypt_secret(encrypted_fallback) if encrypted_fallback else None
+    )

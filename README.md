@@ -113,8 +113,8 @@ data/        Local database and generated assets (gitignored)
 ## Roadmap
 
 - [x] **Phase 0:** Foundation (repo, scaffolding, tooling, CI)
-- [ ] **Phase 1:** Document model and renderer
-- [ ] **Phase 2:** LLM provider layer
+- [x] **Phase 1:** Document model, renderer, app-data paths, and launcher spike
+- [x] **Phase 2:** LLM provider layer and bundle smoke path
 - [ ] **Phase 3:** Generation pipeline
 - [ ] **Phase 4:** Editor and persistence *(MVP)*
 - [ ] **Phase 5:** Images and charts

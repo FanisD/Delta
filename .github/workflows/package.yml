@@ -1,0 +1,44 @@
+name: Package launcher
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: delta-linux
+          - os: macos-latest
+            artifact: delta-macos
+          - os: windows-latest
+            artifact: delta-windows
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --project backend --locked
+      - run: npm ci --prefix frontend
+      - run: npm run build --prefix frontend
+      - run: uv run --project backend pyinstaller packaging/Delta.spec --noconfirm
+      - if: runner.os != 'Windows'
+        run: python packaging/smoke.py dist/Delta/Delta
+      - if: runner.os == 'Windows'
+        run: python packaging/smoke.py dist/Delta/Delta.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/Delta/

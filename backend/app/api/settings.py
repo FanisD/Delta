@@ -7,6 +7,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.keyring_store import delete_secret, get_secret, set_secret
 from app.core.secrets import EncryptionKeyNotConfigured, encrypt_secret
 from app.database import get_session
 from app.models.provider import ModelDefaultRecord, ProviderRecord, utc_now
@@ -37,16 +38,17 @@ provider_id_adapter: TypeAdapter[ProviderId] = TypeAdapter(ProviderId)
 
 
 def to_provider_configuration(record: ProviderRecord) -> ProviderConfiguration:
+    key_configured = (
+        record.api_key_ciphertext is not None or get_secret(record.provider) is not None
+    )
     return ProviderConfiguration(
         provider=provider_id_adapter.validate_python(record.provider),
         configured=(
-            record.provider == "ollama"
-            or record.provider == "openai_compatible"
-            or record.api_key_ciphertext is not None
+            record.provider == "ollama" or record.provider == "openai_compatible" or key_configured
         ),
         model=record.model,
         base_url=record.base_url,
-        api_key_configured=record.api_key_ciphertext is not None,
+        api_key_configured=key_configured,
     )
 
 
@@ -130,15 +132,19 @@ async def update_provider_settings(
 
     key_ciphertext = record.api_key_ciphertext if record else None
     if payload.clear_api_key:
+        delete_secret(provider)
         key_ciphertext = None
     elif payload.api_key:
-        try:
-            key_ciphertext = encrypt_secret(payload.api_key)
-        except EncryptionKeyNotConfigured as exc:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=str(exc),
-            ) from exc
+        if set_secret(provider, payload.api_key):
+            key_ciphertext = None
+        else:
+            try:
+                key_ciphertext = encrypt_secret(payload.api_key)
+            except EncryptionKeyNotConfigured as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=str(exc),
+                ) from exc
 
     if record is None:
         record = ProviderRecord(

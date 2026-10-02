@@ -2,7 +2,7 @@ from pydantic import TypeAdapter
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.secrets import decrypt_secret
+from app.core.secrets import load_provider_secret
 from app.models.provider import ProviderRecord
 from app.schemas.providers import ProviderId
 from app.services.llm.gateway import ProviderCallConfig
@@ -14,7 +14,7 @@ def to_call_config(record: ProviderRecord) -> ProviderCallConfig:
     return ProviderCallConfig(
         provider=provider_id_adapter.validate_python(record.provider),
         model=record.model,
-        api_key=(decrypt_secret(record.api_key_ciphertext) if record.api_key_ciphertext else None),
+        api_key=load_provider_secret(record.provider, record.api_key_ciphertext),
         base_url=record.base_url
         or (settings.ollama_base_url if record.provider == "ollama" else None),
     )
