@@ -2,7 +2,7 @@
 
 **Turn a prompt into a polished, editable presentation. Runs on your machine, with the AI model you choose.**
 
-> **Status:** Phases 0 and 1 are complete, and the Phase 2 provider layer is implemented. Delta includes a local deck library, encrypted provider settings, a multi-provider async LLM gateway, structured-output validation, and a model benchmark. AI presentation generation and editing are planned for later phases.
+> **Status:** Phases 0–3 are complete. Delta includes an editable outline-first generation flow, persistent jobs with SSE progress, partial-failure recovery, encrypted provider settings, and a multi-provider async LLM gateway.
 
 Delta is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
 
@@ -23,11 +23,12 @@ Available now:
 - Set separate default models for outline, card content, and editing tasks
 - Stream or complete asynchronous model calls through a shared LiteLLM gateway, with structured JSON validation and repair
 - Benchmark configured models for JSON validity, latency, tokens, and estimated cost
+- Generate an outline from a prompt with configurable tone, language, audience, card count, and density
+- Edit, reorder, add, or remove outline items before generating cards
+- Stream generated cards over SSE with persistent job progress and partial-failure recovery
+- Regenerate an individual card without discarding successfully generated cards
 
 Planned (see the [roadmap](#roadmap)):
-
-- Generate a deck from a prompt, pasted text, or an imported PDF / DOCX / URL
-- Editable outline before full generation
 - Inline AI editing (rewrite, shorten, expand, translate) and a chat agent for whole-deck changes
 - AI-generated images and charts
 - Export to PDF, PNG, PPTX and standalone HTML
@@ -100,6 +101,13 @@ uv run --project backend python -c "from cryptography.fernet import Fernet; prin
 
 Keep this key private and back it up separately from the database; losing or changing it makes saved provider keys unreadable. After configuring models, run `make benchmark` to print a JSON comparison. Real provider calls require valid provider credentials and, for Ollama, a running server with the selected model installed.
 
+### Generation flow
+
+Choose **Create with AI**, enter a topic and generation settings, then edit the generated
+outline before starting card generation. Cards stream into the UI over SSE, while persistent
+jobs expose status and progress after a refresh. The API also supports regenerating one card
+without discarding the other generated cards.
+
 ## Project structure
 
 ```
@@ -115,7 +123,7 @@ data/        Local database and generated assets (gitignored)
 - [x] **Phase 0:** Foundation (repo, scaffolding, tooling, CI)
 - [x] **Phase 1:** Document model, renderer, app-data paths, and launcher spike
 - [x] **Phase 2:** LLM provider layer and bundle smoke path
-- [ ] **Phase 3:** Generation pipeline
+- [x] **Phase 3:** Generation pipeline
 - [ ] **Phase 4:** Editor and persistence *(MVP)*
 - [ ] **Phase 5:** Images and charts
 - [ ] **Phase 6:** Import and export

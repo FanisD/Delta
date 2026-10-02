@@ -12,12 +12,18 @@ import type {
   CreateDeckApiDecksPostData,
   CreateDeckApiDecksPostErrors,
   CreateDeckApiDecksPostResponses,
+  CreateJobApiGenerationJobsPostData,
+  CreateJobApiGenerationJobsPostErrors,
+  CreateJobApiGenerationJobsPostResponses,
   DeleteDeckApiDecksDeckIdDeleteData,
   DeleteDeckApiDecksDeckIdDeleteErrors,
   DeleteDeckApiDecksDeckIdDeleteResponses,
   GetDeckApiDecksDeckIdGetData,
   GetDeckApiDecksDeckIdGetErrors,
   GetDeckApiDecksDeckIdGetResponses,
+  GetJobApiGenerationJobsJobIdGetData,
+  GetJobApiGenerationJobsJobIdGetErrors,
+  GetJobApiGenerationJobsJobIdGetResponses,
   GetLayoutsApiLayoutsGetData,
   GetLayoutsApiLayoutsGetResponses,
   GetModelCapabilityApiModelsCapabilitiesProviderGetData,
@@ -27,10 +33,22 @@ import type {
   GetProviderSettingsApiSettingsProvidersGetResponses,
   HealthHealthGetData,
   HealthHealthGetResponses,
+  JobEventsApiGenerationJobsJobIdEventsGetData,
+  JobEventsApiGenerationJobsJobIdEventsGetErrors,
+  JobEventsApiGenerationJobsJobIdEventsGetResponses,
   ListDecksApiDecksGetData,
   ListDecksApiDecksGetResponses,
   ListOllamaModelsApiProvidersOllamaModelsGetData,
   ListOllamaModelsApiProvidersOllamaModelsGetResponses,
+  OutlineApiGenerationOutlinePostData,
+  OutlineApiGenerationOutlinePostErrors,
+  OutlineApiGenerationOutlinePostResponses,
+  RecoverJobApiGenerationJobsJobIdRecoverPostData,
+  RecoverJobApiGenerationJobsJobIdRecoverPostErrors,
+  RecoverJobApiGenerationJobsJobIdRecoverPostResponses,
+  RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostData,
+  RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostErrors,
+  RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostResponses,
   TestProviderConnectionApiSettingsProvidersTestPostData,
   TestProviderConnectionApiSettingsProvidersTestPostErrors,
   TestProviderConnectionApiSettingsProvidersTestPostResponses,
@@ -300,6 +318,141 @@ export const listOllamaModelsApiProvidersOllamaModelsGet = <
     unknown,
     ThrowOnError
   >({ url: "/api/providers/ollama/models", ...options })
+
+/**
+ * Outline
+ */
+export const outlineApiGenerationOutlinePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OutlineApiGenerationOutlinePostData, ThrowOnError>,
+): RequestResult<
+  OutlineApiGenerationOutlinePostResponses,
+  OutlineApiGenerationOutlinePostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    OutlineApiGenerationOutlinePostResponses,
+    OutlineApiGenerationOutlinePostErrors,
+    ThrowOnError
+  >({
+    url: "/api/generation/outline",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Create Job
+ */
+export const createJobApiGenerationJobsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateJobApiGenerationJobsPostData, ThrowOnError>,
+): RequestResult<
+  CreateJobApiGenerationJobsPostResponses,
+  CreateJobApiGenerationJobsPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    CreateJobApiGenerationJobsPostResponses,
+    CreateJobApiGenerationJobsPostErrors,
+    ThrowOnError
+  >({
+    url: "/api/generation/jobs",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Get Job
+ */
+export const getJobApiGenerationJobsJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetJobApiGenerationJobsJobIdGetData, ThrowOnError>,
+): RequestResult<
+  GetJobApiGenerationJobsJobIdGetResponses,
+  GetJobApiGenerationJobsJobIdGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetJobApiGenerationJobsJobIdGetResponses,
+    GetJobApiGenerationJobsJobIdGetErrors,
+    ThrowOnError
+  >({ url: "/api/generation/jobs/{job_id}", ...options })
+
+/**
+ * Recover Job
+ */
+export const recoverJobApiGenerationJobsJobIdRecoverPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    RecoverJobApiGenerationJobsJobIdRecoverPostData,
+    ThrowOnError
+  >,
+): RequestResult<
+  RecoverJobApiGenerationJobsJobIdRecoverPostResponses,
+  RecoverJobApiGenerationJobsJobIdRecoverPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    RecoverJobApiGenerationJobsJobIdRecoverPostResponses,
+    RecoverJobApiGenerationJobsJobIdRecoverPostErrors,
+    ThrowOnError
+  >({ url: "/api/generation/jobs/{job_id}/recover", ...options })
+
+/**
+ * Regenerate Card
+ */
+export const regenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostData,
+    ThrowOnError
+  >,
+): RequestResult<
+  RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostResponses,
+  RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostResponses,
+    RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostErrors,
+    ThrowOnError
+  >({
+    url: "/api/generation/jobs/{job_id}/cards/{card_id}/regenerate",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Job Events
+ */
+export const jobEventsApiGenerationJobsJobIdEventsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<JobEventsApiGenerationJobsJobIdEventsGetData, ThrowOnError>,
+): RequestResult<
+  JobEventsApiGenerationJobsJobIdEventsGetResponses,
+  JobEventsApiGenerationJobsJobIdEventsGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    JobEventsApiGenerationJobsJobIdEventsGetResponses,
+    JobEventsApiGenerationJobsJobIdEventsGetErrors,
+    ThrowOnError
+  >({ url: "/api/generation/jobs/{job_id}/events", ...options })
 
 /**
  * Health

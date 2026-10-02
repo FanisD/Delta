@@ -159,6 +159,87 @@ export type DeckUpdate = {
 }
 
 /**
+ * GenerationJobCreate
+ */
+export type GenerationJobCreate = {
+  /**
+   * Prompt
+   */
+  prompt: string
+  settings?: GenerationSettings
+  outline?: Outline | null
+}
+
+/**
+ * GenerationJobStatus
+ */
+export type GenerationJobStatus = {
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Status
+   */
+  status: "queued" | "running" | "completed" | "partial" | "failed"
+  /**
+   * Progress
+   */
+  progress: number
+  outline?: Outline | null
+  /**
+   * Cards
+   */
+  cards?: Array<Card>
+  /**
+   * Errors
+   */
+  errors?: Array<string>
+  /**
+   * Deck Id
+   */
+  deck_id?: string | null
+  /**
+   * Created At
+   */
+  created_at: string
+  /**
+   * Updated At
+   */
+  updated_at: string
+}
+
+/**
+ * GenerationSettings
+ */
+export type GenerationSettings = {
+  /**
+   * Card Count
+   */
+  card_count?: number
+  /**
+   * Tone
+   */
+  tone?: string
+  /**
+   * Language
+   */
+  language?: string
+  /**
+   * Audience
+   */
+  audience?: string
+  /**
+   * Density
+   */
+  density?: "concise" | "balanced" | "detailed"
+  /**
+   * Concurrency
+   */
+  concurrency?: number
+}
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -303,6 +384,49 @@ export type OllamaModelsResponse = {
 }
 
 /**
+ * Outline
+ */
+export type Outline = {
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Items
+   */
+  items: Array<OutlineItem>
+}
+
+/**
+ * OutlineItem
+ */
+export type OutlineItem = {
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Summary
+   */
+  summary: string
+}
+
+/**
+ * OutlineRequest
+ */
+export type OutlineRequest = {
+  /**
+   * Prompt
+   */
+  prompt: string
+  settings?: GenerationSettings
+}
+
+/**
  * ParagraphBlock
  */
 export type ParagraphBlock = {
@@ -438,6 +562,17 @@ export type QuoteBlock = {
    * Attribution
    */
   attribution?: string | null
+}
+
+/**
+ * RegenerateCardRequest
+ */
+export type RegenerateCardRequest = {
+  /**
+   * Prompt
+   */
+  prompt?: string | null
+  settings?: GenerationSettings | null
 }
 
 /**
@@ -811,6 +946,192 @@ export type ListOllamaModelsApiProvidersOllamaModelsGetResponses = {
 
 export type ListOllamaModelsApiProvidersOllamaModelsGetResponse =
   ListOllamaModelsApiProvidersOllamaModelsGetResponses[keyof ListOllamaModelsApiProvidersOllamaModelsGetResponses]
+
+export type OutlineApiGenerationOutlinePostData = {
+  body: OutlineRequest
+  path?: never
+  query?: never
+  url: "/api/generation/outline"
+}
+
+export type OutlineApiGenerationOutlinePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type OutlineApiGenerationOutlinePostError =
+  OutlineApiGenerationOutlinePostErrors[keyof OutlineApiGenerationOutlinePostErrors]
+
+export type OutlineApiGenerationOutlinePostResponses = {
+  /**
+   * Successful Response
+   */
+  200: Outline
+}
+
+export type OutlineApiGenerationOutlinePostResponse =
+  OutlineApiGenerationOutlinePostResponses[keyof OutlineApiGenerationOutlinePostResponses]
+
+export type CreateJobApiGenerationJobsPostData = {
+  body: GenerationJobCreate
+  path?: never
+  query?: never
+  url: "/api/generation/jobs"
+}
+
+export type CreateJobApiGenerationJobsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type CreateJobApiGenerationJobsPostError =
+  CreateJobApiGenerationJobsPostErrors[keyof CreateJobApiGenerationJobsPostErrors]
+
+export type CreateJobApiGenerationJobsPostResponses = {
+  /**
+   * Successful Response
+   */
+  202: GenerationJobStatus
+}
+
+export type CreateJobApiGenerationJobsPostResponse =
+  CreateJobApiGenerationJobsPostResponses[keyof CreateJobApiGenerationJobsPostResponses]
+
+export type GetJobApiGenerationJobsJobIdGetData = {
+  body?: never
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string
+  }
+  query?: never
+  url: "/api/generation/jobs/{job_id}"
+}
+
+export type GetJobApiGenerationJobsJobIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetJobApiGenerationJobsJobIdGetError =
+  GetJobApiGenerationJobsJobIdGetErrors[keyof GetJobApiGenerationJobsJobIdGetErrors]
+
+export type GetJobApiGenerationJobsJobIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: GenerationJobStatus
+}
+
+export type GetJobApiGenerationJobsJobIdGetResponse =
+  GetJobApiGenerationJobsJobIdGetResponses[keyof GetJobApiGenerationJobsJobIdGetResponses]
+
+export type RecoverJobApiGenerationJobsJobIdRecoverPostData = {
+  body?: never
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string
+  }
+  query?: never
+  url: "/api/generation/jobs/{job_id}/recover"
+}
+
+export type RecoverJobApiGenerationJobsJobIdRecoverPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type RecoverJobApiGenerationJobsJobIdRecoverPostError =
+  RecoverJobApiGenerationJobsJobIdRecoverPostErrors[keyof RecoverJobApiGenerationJobsJobIdRecoverPostErrors]
+
+export type RecoverJobApiGenerationJobsJobIdRecoverPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: GenerationJobStatus
+}
+
+export type RecoverJobApiGenerationJobsJobIdRecoverPostResponse =
+  RecoverJobApiGenerationJobsJobIdRecoverPostResponses[keyof RecoverJobApiGenerationJobsJobIdRecoverPostResponses]
+
+export type RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostData =
+  {
+    body: RegenerateCardRequest
+    path: {
+      /**
+       * Job Id
+       */
+      job_id: string
+      /**
+       * Card Id
+       */
+      card_id: string
+    }
+    query?: never
+    url: "/api/generation/jobs/{job_id}/cards/{card_id}/regenerate"
+  }
+
+export type RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError
+  }
+
+export type RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostError =
+  RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostErrors[keyof RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostErrors]
+
+export type RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: GenerationJobStatus
+  }
+
+export type RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostResponse =
+  RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostResponses[keyof RegenerateCardApiGenerationJobsJobIdCardsCardIdRegeneratePostResponses]
+
+export type JobEventsApiGenerationJobsJobIdEventsGetData = {
+  body?: never
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string
+  }
+  query?: never
+  url: "/api/generation/jobs/{job_id}/events"
+}
+
+export type JobEventsApiGenerationJobsJobIdEventsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type JobEventsApiGenerationJobsJobIdEventsGetError =
+  JobEventsApiGenerationJobsJobIdEventsGetErrors[keyof JobEventsApiGenerationJobsJobIdEventsGetErrors]
+
+export type JobEventsApiGenerationJobsJobIdEventsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown
+}
 
 export type HealthHealthGetData = {
   body?: never

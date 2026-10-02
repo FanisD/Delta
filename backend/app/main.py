@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from alembic import command
 from app.api.decks import router as decks_router
+from app.api.generation import router as generation_router
 from app.api.settings import router as settings_router
 from app.core.config import settings
 from app.database import session_factory
@@ -39,6 +40,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 app.include_router(decks_router)
 app.include_router(settings_router)
+app.include_router(generation_router)
 
 
 class HealthResponse(BaseModel):

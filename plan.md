@@ -1,4 +1,4 @@
-# Gamma-Style AI Presentation Builder: Build Plan
+# Delta AI Presentation Builder: Build Plan
 
 **Stack:** FastAPI (Python) backend + React (TypeScript) frontend
 **Runs:** locally, with either cloud model API keys (Gemini, Claude, Grok, ...) or local models (Ollama, ...)
@@ -193,58 +193,58 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 ### Phase 0: Foundation (2-3 days)
 
-- [ ] **P0.1** Create the git repo, `.gitignore`, license, README skeleton
-- [ ] **P0.2** Backend scaffold: `uv init`, FastAPI app, `/health`, pydantic-settings config
-- [ ] **P0.3** Frontend scaffold: Vite + React + TS, Tailwind, shadcn/ui, React Router
-- [ ] **P0.4** Tooling: Ruff, mypy/pyright, pytest; ESLint, Prettier, Vitest; pre-commit hooks
-- [ ] **P0.5** Contract pipeline: export OpenAPI, generate the TS client (`make gen-api`)
-- [ ] **P0.6** Dev commands: `make dev` runs both servers; Vite proxy to FastAPI
-- [ ] **P0.7** CI: GitHub Actions running lint, type-check and tests for both sides
-- [ ] **P0.8** Decide the project name and MVP scope (presentations only)
+- [x] **P0.1** Create the git repo, `.gitignore`, license, README skeleton
+- [x] **P0.2** Backend scaffold: `uv init`, FastAPI app, `/health`, pydantic-settings config
+- [x] **P0.3** Frontend scaffold: Vite + React + TS, Tailwind, shadcn/ui, React Router
+- [x] **P0.4** Tooling: Ruff, mypy/pyright, pytest; ESLint, Prettier, Vitest; pre-commit hooks
+- [x] **P0.5** Contract pipeline: export OpenAPI, generate the TS client (`make gen-api`)
+- [x] **P0.6** Dev commands: `make dev` runs both servers; Vite proxy to FastAPI
+- [x] **P0.7** CI: GitHub Actions running lint, type-check and tests for both sides
+- [x] **P0.8** Decide the project name and MVP scope (presentations only)
 
 **Done when:** `make dev` boots both apps, the UI can call `/health`, and CI is green.
 
 ### Phase 1: Document model and renderer, no AI (1.5-2.5 weeks)
 
-- [ ] **P1.1** Pydantic models: `Deck`, `Card`, `Block` (discriminated union on `type`), `Theme`, layout enum, with text length limits
-- [ ] **P1.2** SQLAlchemy model + Alembic migration for decks (JSON column)
-- [ ] **P1.3** CRUD endpoints for decks
-- [ ] **P1.4** Layout specs as data (regions and slots), shared by React and the future PPTX exporter
-- [ ] **P1.5** React block components: heading, paragraph, bullets, columns, quote, stat, table, image, chart placeholder
-- [ ] **P1.6** Build 6-8 layouts (title, two-column, three-box, image-left/right, quote, timeline, ...)
-- [ ] **P1.7** Theme tokens to CSS variables; 3 themes; theme switcher
-- [ ] **P1.8** Seed 2-3 hand-written decks; scroll view plus presentation mode (fullscreen, arrow keys)
-- [ ] **P1.9** App paths and production serving: `platformdirs`-based data directory (env-var override for dev); FastAPI serves the built React files in production mode
-- [ ] **P1.10** **Packaging spike (de-risk early):** minimal `launcher/main.py` (pick a free port, start Uvicorn on `127.0.0.1`, open the browser) plus a PyInstaller `--onedir` build in CI on Windows, macOS and Linux; run each bundle and hit `/api/health`. Finding bundling problems now is far cheaper than after Phase 7.
+- [x] **P1.1** Pydantic models: `Deck`, `Card`, `Block` (discriminated union on `type`), `Theme`, layout enum, with text length limits
+- [x] **P1.2** SQLAlchemy model + Alembic migration for decks (JSON column)
+- [x] **P1.3** CRUD endpoints for decks
+- [x] **P1.4** Layout specs as data (regions and slots), shared by React and the future PPTX exporter
+- [x] **P1.5** React block components: heading, paragraph, bullets, columns, quote, stat, table, image, chart placeholder
+- [x] **P1.6** Build 6-8 layouts (title, two-column, three-box, image-left/right, quote, timeline, ...)
+- [x] **P1.7** Theme tokens to CSS variables; 3 themes; theme switcher
+- [x] **P1.8** Seed 2-3 hand-written decks; scroll view plus presentation mode (fullscreen, arrow keys)
+- [x] **P1.9** App paths and production serving: `platformdirs`-based data directory (env-var override for dev); FastAPI serves the built React files in production mode
+- [x] **P1.10** **Packaging spike (de-risk early):** minimal `launcher/main.py` (pick a free port, start Uvicorn on `127.0.0.1`, open the browser) plus a PyInstaller `--onedir` build in CI on Windows, macOS and Linux; run each bundle and hit `/api/health`. Finding bundling problems now is far cheaper than after Phase 7.
 
 **Done when:** a hand-written deck renders well, themes switch cleanly, presentation mode works, and a CI-built bundle launches on all three operating systems. This is the foundation everything else sits on; do not skip it.
 
 ### Phase 2: LLM provider layer (1 week)
 
-- [ ] **P2.1** Provider settings model and API; keys stored in the OS keyring (encrypted-file fallback), write-only from the frontend
-- [ ] **P2.2** LiteLLM wrapper with async `complete()` and `stream()`
-- [ ] **P2.3** `generate_structured(PydanticModel, messages)` using Instructor or JSON-schema `response_format` (Ollama `format` field for local)
-- [ ] **P2.4** Model capability registry (supports JSON schema? tools? context window?) and a fallback ladder: native schema, then JSON mode, then prompt-only plus repair
-- [ ] **P2.5** JSON repair, validation, and retry with the validation error fed back to the model
-- [ ] **P2.6** Ollama integration: list installed models, connection test, clear errors (server down, model not pulled)
-- [ ] **P2.7** Frontend settings page: add provider, test connection, pick default models per role (outline / content / edit)
-- [ ] **P2.8** Benchmark script (`evals/`): fixed prompts against each configured model, reporting valid-JSON rate, latency, tokens
-- [ ] **P2.9** Timeouts, cancellation, rate-limit backoff, rough token/cost estimate
-- [ ] **P2.10** Bundle check: rebuild the PyInstaller bundle and confirm the gateway still works inside it (LiteLLM ships data files that PyInstaller misses by default). If it is too large or fragile, fall back to thin per-provider adapters over `httpx`.
+- [x] **P2.1** Provider settings model and API; keys stored in the OS keyring (encrypted-file fallback), write-only from the frontend
+- [x] **P2.2** LiteLLM wrapper with async `complete()` and `stream()`
+- [x] **P2.3** `generate_structured(PydanticModel, messages)` using Instructor or JSON-schema `response_format` (Ollama `format` field for local)
+- [x] **P2.4** Model capability registry (supports JSON schema? tools? context window?) and a fallback ladder: native schema, then JSON mode, then prompt-only plus repair
+- [x] **P2.5** JSON repair, validation, and retry with the validation error fed back to the model
+- [x] **P2.6** Ollama integration: list installed models, connection test, clear errors (server down, model not pulled)
+- [x] **P2.7** Frontend settings page: add provider, test connection, pick default models per role (outline / content / edit)
+- [x] **P2.8** Benchmark script (`evals/`): fixed prompts against each configured model, reporting valid-JSON rate, latency, tokens
+- [x] **P2.9** Timeouts, cancellation, rate-limit backoff, rough token/cost estimate
+- [x] **P2.10** Bundle check: rebuild the PyInstaller bundle and confirm the gateway still works inside it (LiteLLM ships data files that PyInstaller misses by default). If it is too large or fragile, fall back to thin per-provider adapters over `httpx`.
 
 **Done when:** the same structured call succeeds on Gemini, Claude, Grok and at least one Ollama model, and the benchmark prints a comparison.
 
 ### Phase 3: Generation pipeline (1-2 weeks)
 
-- [ ] **P3.1** Jinja2 prompt templates (outline, card) parameterized by tone, language, audience, card count, text density
-- [ ] **P3.2** Outline service and endpoint returning an `Outline` schema
-- [ ] **P3.3** Outline editor UI (edit, reorder, add, delete) before full generation
-- [ ] **P3.4** Per-card generation with a configurable concurrency limit (parallel for cloud, sequential for weak local hardware)
-- [ ] **P3.5** Layout selection: LLM hint validated against the layout enum, with a deterministic fallback based on block shapes
-- [ ] **P3.6** SSE stream (`outline`, `card`, `error`, `done` events); frontend renders cards as they arrive
-- [ ] **P3.7** Generation settings UI (card count, tone, language, audience, density)
-- [ ] **P3.8** Regenerate a single card; handle partial failures without losing the rest
-- [ ] **P3.9** Generation job record (status, progress) so a page refresh does not lose work
+- [x] **P3.1** Jinja2 prompt templates (outline, card) parameterized by tone, language, audience, card count, text density
+- [x] **P3.2** Outline service and endpoint returning an `Outline` schema
+- [x] **P3.3** Outline editor UI (edit, reorder, add, delete) before full generation
+- [x] **P3.4** Per-card generation with a configurable concurrency limit (parallel for cloud, sequential for weak local hardware)
+- [x] **P3.5** Layout selection: LLM hint validated against the layout enum, with a deterministic fallback based on block shapes
+- [x] **P3.6** SSE stream (`outline`, `card`, `error`, `done` events); frontend renders cards as they arrive
+- [x] **P3.7** Generation settings UI (card count, tone, language, audience, density)
+- [x] **P3.8** Regenerate a single card; handle partial failures without losing the rest
+- [x] **P3.9** Generation job record (status, progress) so a page refresh does not lose work
 
 **Done when:** prompt, then editable outline, then complete deck works on one cloud model and one local model.
 
