@@ -112,3 +112,16 @@ class ModelCapabilitiesResponse(BaseModel):
     tools: bool
     context_window: int | None
     output_modes: list[str]
+
+
+class AppInfoResponse(BaseModel):
+    version: str
+    data_directory: str
+    ollama_base_url: str
+
+
+class UpdateCheckResponse(BaseModel):
+    current_version: str
+    latest_version: str | None = None
+    release_url: str | None = None
+    available: bool = False

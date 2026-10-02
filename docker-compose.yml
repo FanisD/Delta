@@ -1,0 +1,20 @@
+services:
+  delta:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      APP_DATA_DIR: /data
+      APP_OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - delta-data:/data
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+volumes:
+  delta-data:
+  ollama-data:

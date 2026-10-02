@@ -112,6 +112,24 @@ export type AgentRequest = {
 }
 
 /**
+ * AppInfoResponse
+ */
+export type AppInfoResponse = {
+  /**
+   * Version
+   */
+  version: string
+  /**
+   * Data Directory
+   */
+  data_directory: string
+  /**
+   * Ollama Base Url
+   */
+  ollama_base_url: string
+}
+
+/**
  * Body_import_file_api_import_file_post
  */
 export type BodyImportFileApiImportFilePost = {
@@ -957,6 +975,28 @@ export type UpdateBlockOperation = {
 }
 
 /**
+ * UpdateCheckResponse
+ */
+export type UpdateCheckResponse = {
+  /**
+   * Current Version
+   */
+  current_version: string
+  /**
+   * Latest Version
+   */
+  latest_version?: string | null
+  /**
+   * Release Url
+   */
+  release_url?: string | null
+  /**
+   * Available
+   */
+  available?: boolean
+}
+
+/**
  * ValidationError
  */
 export type ValidationError = {
@@ -1157,6 +1197,40 @@ export type DuplicateDeckApiDecksDeckIdDuplicatePostResponses = {
 
 export type DuplicateDeckApiDecksDeckIdDuplicatePostResponse =
   DuplicateDeckApiDecksDeckIdDuplicatePostResponses[keyof DuplicateDeckApiDecksDeckIdDuplicatePostResponses]
+
+export type GetAppInfoApiSettingsAppGetData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/settings/app"
+}
+
+export type GetAppInfoApiSettingsAppGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: AppInfoResponse
+}
+
+export type GetAppInfoApiSettingsAppGetResponse =
+  GetAppInfoApiSettingsAppGetResponses[keyof GetAppInfoApiSettingsAppGetResponses]
+
+export type CheckForUpdateApiUpdatesCheckGetData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/updates/check"
+}
+
+export type CheckForUpdateApiUpdatesCheckGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: UpdateCheckResponse
+}
+
+export type CheckForUpdateApiUpdatesCheckGetResponse =
+  CheckForUpdateApiUpdatesCheckGetResponses[keyof CheckForUpdateApiUpdatesCheckGetResponses]
 
 export type GetModelCapabilityApiModelsCapabilitiesProviderGetData = {
   body?: never

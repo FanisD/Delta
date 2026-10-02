@@ -17,3 +17,11 @@ def test_legacy_api_health_route_returns_ok() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_app_info_exposes_data_directory() -> None:
+    response = client.get("/api/settings/app")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["version"]
+    assert payload["data_directory"]

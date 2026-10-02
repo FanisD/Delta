@@ -150,6 +150,17 @@ plan.md      Plan and architecture notes
 data/        Local database and generated assets (gitignored)
 ```
 
+## Download and self-hosting
+
+Download platform archives from the [Delta Releases page](https://github.com/FanisD/Delta/releases)
+or the [download page](docs/download/index.html). Release archives include SHA256 checksums;
+cross-platform artifact launch checks run in GitHub Actions, while local development can use
+`python packaging/smoke.py <path-to-Delta>`.
+
+Contributors can run `docker compose up --build`. Add `--profile ollama` to start an Ollama
+container alongside Delta (`docker compose --profile ollama up --build`), then pull a model
+from the Ollama container.
+
 ## Roadmap
 
 - [x] **Phase 0:** Foundation (repo, scaffolding, tooling, CI)
