@@ -3,7 +3,7 @@ from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-ProviderId = Literal["gemini", "anthropic", "xai", "openai_compatible", "ollama"]
+ProviderId = Literal["openai", "gemini", "anthropic", "xai", "openai_compatible", "ollama"]
 ModelRole = Literal["outline", "content", "edit"]
 
 

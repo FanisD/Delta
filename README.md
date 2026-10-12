@@ -1,184 +1,270 @@
 # Delta
 
-**Turn a prompt into a polished, editable presentation. Runs on your machine, with the AI model you choose.**
+**Delta turns a prompt into an editable presentation on your own computer.**
 
-> **Status:** Phases 0–8 are in active release preparation. Delta includes an editable presentation MVP with a reviewable chat agent and local import/export.
+Delta is local-first: the application, presentation files, and saved provider
+settings live on your machine. You choose whether the AI comes from a cloud
+provider using your own API key or from a local Ollama model.
 
-Delta is an open-source, local-first AI presentation builder inspired by tools like Gamma. Describe a topic (or paste text, or import a file or URL) and get a card-based presentation you can edit, restyle and export. Bring your own model: use API keys you already have (Gemini, Claude, Grok, ...) or run fully offline with local models through Ollama.
+> Delta is not affiliated with or endorsed by OpenAI, Google, Anthropic,
+> Ollama, or Gamma.
 
-*Not affiliated with or endorsed by Gamma.*
+## What can I use today?
 
----
+| Option | Works without Docker? | Needs an API key? | Best for |
+| --- | --- | --- | --- |
+| **Browser, local development** | Yes | No, if using Ollama | Developers and contributors |
+| **Browser, downloaded launcher** | Yes | No, if using Ollama | People who want to unzip and run Delta |
+| **Browser, Docker** | No | No, if using the Ollama Docker profile | Self-hosting and simple repeatable setup |
+| **Installed desktop app** | The Tauri shell is scaffolded; signed downloadable desktop bundles are not published yet | Same provider choices | The future native-window distribution |
 
-## Features
+The browser versions are usable now. The desktop code is under
+[`desktop/`](desktop/) and reuses the same backend and frontend, but release
+bundles still require native CI builds, icons, backend sidecars, and signing.
+Until those are published, use the downloaded launcher or Docker.
 
-Available now:
+## Choose your AI provider
 
-- Browse three hand-written demo decks in the local presentation library
-- Render validated card documents with eight shared layouts and nine block types
-- Switch between Ocean, Sunset, and Forest themes; theme changes persist locally
-- Scroll through a deck or use presentation mode with arrow-key navigation
-- Create, read, update, and delete decks through the local API
-- Configure Gemini, Claude, Grok, OpenAI-compatible endpoints, or local Ollama
-- Set separate default models for outline, card content, and editing tasks
-- Stream or complete asynchronous model calls through a shared LiteLLM gateway, with structured JSON validation and repair
-- Benchmark configured models for JSON validity, latency, tokens, and estimated cost
-- Generate an outline from a prompt with configurable tone, language, audience, card count, and density
-- Edit, reorder, add, or remove outline items before generating cards
-- Stream generated cards over SSE with persistent job progress and partial-failure recovery
-- Regenerate an individual card without discarding successfully generated cards
-- Edit cards inline with add, duplicate, delete, reorder, layout and theme controls
-- Autosave with optimistic version conflict safety, undo/redo, and accept/reject AI edits
-- Reviewable whole-deck chat edits with bounded operations and deletion confirmation
-- Search, rename, duplicate, and delete presentations from the project home
-- Image assets with upload, persistent asynchronous generation jobs, SSE updates, and
-  OpenAI-compatible, A1111/ComfyUI, Unsplash/Pexels, or offline SVG fallback providers
-- JSON chart blocks (explicitly marked illustrative), Mermaid diagram blocks, and Lucide icons
-- Print-ready `/print/:deckId` pages plus PDF, PNG, PPTX, and standalone HTML export APIs
-- Paste-text, PDF, PPTX, DOCX, and URL imports; PPTX imports extract slide and table text, while URL imports block private, loopback, link-local, and reserved addresses
+Delta supports these choices in **Settings**:
 
-Planned (see the [roadmap](#roadmap)):
-- AI-generated images and charts
-- Cloud models **or** local models, configured in the app's settings
-- Local-first: your decks and API keys stay on your machine
+- **OpenAI**: enter an OpenAI API key and a model such as `gpt-4o-mini`.
+- **Google Gemini**: enter a Gemini API key and a model such as
+  `gemini-2.5-flash`.
+- **Anthropic Claude**: enter an Anthropic API key and a model such as
+  `claude-sonnet-4-5`.
+- **Ollama**: install Ollama, start it, and download a model such as
+  `qwen2.5:7b`. No cloud key is needed.
+- **OpenAI-compatible**: optionally connect another service that exposes an
+  OpenAI-compatible API by entering its model, URL, and key.
 
-## How it works
+You can configure more than one provider and choose separate models for
+outlines, card content, and editing. Delta never displays a saved key again in
+the settings screen. Keys are stored using the operating-system keyring when
+available, with encrypted local storage as a fallback.
 
-The AI does not design slides. It writes a **structured document (JSON)**, and a deterministic renderer plus a design system turns that structure into visuals. That is what makes the model swappable.
+## Easiest option: download and run the launcher
 
-```
-Input -> Outline -> Card content (JSON) -> Layout -> Theme -> Images/Charts -> Editor -> Export
-```
+This is the recommended option for people who do not want to install Python,
+Node.js, or Docker.
 
-## Tech stack
+1. Open the [Delta Releases page](https://github.com/FanisD/Delta/releases).
+2. Download the file for your computer:
+   - Windows: `.zip`
+   - macOS: `.dmg`
+   - Linux: `.tar.gz`
+3. Extract the archive if necessary.
+4. Double-click **Delta**. Delta opens in your browser automatically.
+5. Open **Settings**, choose a provider, enter its model and key, and save.
+6. Choose **Create with AI**, describe your presentation, and generate it.
 
-| Layer | Tools |
-|---|---|
-| Backend | Python, FastAPI, Pydantic v2, SQLAlchemy + Alembic, SQLite |
-| LLM access | LiteLLM (Gemini, Anthropic, xAI, OpenAI-compatible, Ollama) |
-| Frontend | React, TypeScript, Vite, Tailwind CSS, shadcn/ui, TipTap |
-| Export | Playwright (PDF/PNG), python-pptx (PPTX) |
-| Tooling | uv, Ruff, mypy, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
+For the first release, Windows may show **More info → Run anyway** and macOS
+may show an “unidentified developer” warning. This happens because early
+artifacts may not be code-signed. Only bypass the warning when the archive came
+from the official Delta GitHub Releases page. Verify the published SHA256
+checksum when possible.
 
-## Getting started
+The launcher keeps data in the normal application-data folder for your
+operating system. It does not store your presentations in the downloaded
+archive. Use `Delta --no-browser` if you want to start the local server without
+opening a browser.
 
-### Prerequisites
+## Browser without Docker: local development
 
-- Python 3.12+ and [uv](https://docs.astral.sh/uv/)
-- Node.js 22+ (or 20.19+) and npm
-- *Optional:* [Ollama](https://ollama.com/) for local models
-- *Optional:* Docker and Docker Compose
+Use this path if you are comfortable installing a few tools or want to
+contribute to Delta.
 
-### Run locally
+### Install prerequisites
+
+- Python 3.12 or newer
+- [uv](https://docs.astral.sh/uv/)
+- Node.js 20.19+ or 22.12+ and npm
+- Optional: [Ollama](https://ollama.com/)
+
+### Start Delta
 
 ```bash
 git clone https://github.com/FanisD/Delta.git
 cd Delta
-
-# Copy the example environment file
 cp .env.example .env
-
-# Install dependencies, install hooks, and start backend and frontend
 uv sync --project backend
 npm ci --prefix frontend
-make hooks-install
 make dev
 ```
 
-The frontend is available at <http://127.0.0.1:5173>; the API and OpenAPI schema
-are served at <http://127.0.0.1:8000>. Run `make gen-api` to regenerate the
-typed frontend API client from the backend contract, and `make check` to run
-linting, formatting checks, type checks, and tests.
+Open <http://127.0.0.1:5173>. The local API runs at
+<http://127.0.0.1:8000>.
 
-### Download and launcher
+Stop the servers with `Ctrl+C`.
 
-Tagged releases publish per-platform `Delta` archives from GitHub Actions. Extract
-the archive and double-click `Delta` (or run `Delta --no-browser` for server-only
-launch). The launcher chooses a free loopback port, writes logs and the database
-under the platform's Delta application-data directory, and a second launch opens
-the existing tab. `--port 8000` requests a preferred port but falls back safely.
+### Use Ollama locally
 
-Unsigned early builds may show Windows SmartScreen (**More info → Run anyway**) or
-macOS Gatekeeper (**Control-click → Open** once). Linux users should run the
-extracted executable and verify the published SHA256 checksum if antivirus flags it.
-If Ollama is offline, start it and pull a model (`ollama pull qwen2.5:7b`) before
-selecting it in Settings.
+1. Install Ollama from <https://ollama.com/download>.
+2. Start Ollama.
+3. Open a terminal and run:
 
-### Model providers
+   ```bash
+   ollama pull qwen2.5:7b
+   ```
 
-Open **Settings** in the app to configure one or more providers:
+4. In Delta, open **Settings**, choose **Ollama**, click **Find installed
+   models**, choose `qwen2.5:7b`, and save it.
 
-| Provider | Configuration |
-|---|---|
-| Gemini / Anthropic / xAI | Model name and API key |
-| Ollama | A running Ollama server; use **Find installed models** |
-| OpenAI-compatible | Model name and endpoint base URL; API key is optional |
+If you use a different model, select that model in Settings. Ollama must be
+running whenever you generate a presentation.
 
-Cloud API keys are write-only in the UI and encrypted in SQLite using Fernet. Before saving a cloud key, set `APP_ENCRYPTION_KEY` in the root `.env` file. Generate a key once:
+### Use a cloud provider
+
+Open **Settings**, choose **OpenAI**, **Google Gemini**, or **Anthropic
+Claude**, enter the model name and API key, then save and test the provider.
+The key is sent only when Delta calls that provider. Cloud providers charge
+according to their own pricing; Delta does not include an AI subscription.
+
+If Delta reports that a key cannot be saved, copy `.env.example` to `.env`,
+generate an encryption key, and put it after `APP_ENCRYPTION_KEY=`:
 
 ```bash
-uv run --project backend python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+uv run --project backend python -c \
+  "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
-Keep this key private and back it up separately from the database; losing or changing it makes saved provider keys unreadable. After configuring models, run `make benchmark` to print a JSON comparison. Real provider calls require valid provider credentials and, for Ollama, a running server with the selected model installed.
+Keep the resulting key private. Changing or losing it can make encrypted
+provider settings unreadable.
 
-### Generation flow
+## Browser with Docker
 
-Choose **Create with AI**, enter a topic and generation settings, then edit the generated
-outline before starting card generation. Cards stream into the UI over SSE, while persistent
-jobs expose status and progress after a refresh. The API also supports regenerating one card
-without discarding the other generated cards.
+Docker runs the backend and built frontend together at
+<http://localhost:8000>. This is the easiest browser setup when Docker is
+already installed.
 
-### Import and export
+### Cloud provider in Docker
 
-Use `/print/<deck-id>` for a page-sized print view. The backend exposes
-`/api/decks/<deck-id>/export/{pdf,png,pptx,html}`. PDF/PNG export prefers an
-installed Chrome or Edge and attempts a first-use Chromium download under the
-Delta app-data directory when neither is available. PPTX export intentionally
-maps the structured document to editable text boxes and may lose visual fidelity.
-Imports are available at `/api/import/text`, `/api/import/file`, and
-`/api/import/url`; remote fetches have strict size, timeout, redirect, and SSRF
-protections.
+```bash
+git clone https://github.com/FanisD/Delta.git
+cd Delta
+docker compose up --build
+```
+
+Open <http://localhost:8000>, then configure OpenAI, Gemini, or Anthropic in
+**Settings**. Your data is kept in the Docker volume named `delta-data`.
+
+### Ollama in Docker
+
+Start both services:
+
+```bash
+docker compose --profile ollama up --build
+```
+
+In a second terminal, download a model into the Ollama container:
+
+```bash
+docker compose exec ollama ollama pull qwen2.5:7b
+```
+
+Open <http://localhost:8000>, choose **Ollama** in Settings, click **Find
+installed models**, and save the model. The Ollama model files are kept in the
+`ollama-data` Docker volume.
+
+To stop Docker:
+
+```bash
+docker compose down
+```
+
+The named volumes are not deleted by that command. To delete all Docker data,
+including presentations and downloaded models, use
+`docker compose down -v`.
+
+## Desktop app
+
+The native app uses Tauri 2 and starts the same packaged Python backend as a
+sidecar. It does not contain a second presentation editor or a second AI
+implementation. See [`docs/desktop.md`](docs/desktop.md) and the
+[Tauri/Electron decision note](docs/desktop-decision.md).
+
+The project currently contains the desktop source and release workflow, but
+official signed desktop installers are not yet available in GitHub Releases.
+When they are published, the download page will offer both:
+
+- **Desktop app**: installed native window and automatic updates.
+- **Launcher**: no installation; unzip and run, then use the browser.
+
+Until then, use the launcher for a no-dependency download or Docker/local
+development for the browser.
+
+## What Delta does
+
+- Generates outlines and editable cards from a prompt.
+- Lets you edit, reorder, duplicate, and delete cards.
+- Supports themes, layouts, images, charts, Mermaid diagrams, and icons.
+- Imports text, PDF, DOCX, PPTX, and URLs.
+- Exports PDF, PNG, PPTX, and standalone HTML.
+- Saves decks locally with autosave, undo/redo, and version conflict safety.
+
+## Troubleshooting
+
+### The page does not open
+
+- Launcher: wait a few seconds, then open the URL printed in the launcher log.
+- Local development: confirm `make dev` is still running and open
+  <http://127.0.0.1:5173>.
+- Docker: confirm `docker compose ps` shows the `delta` service as running and
+  open <http://localhost:8000>.
+
+### OpenAI, Gemini, or Anthropic says the key is invalid
+
+Check that the key belongs to the selected provider, that the model name is
+available to your account, and that you have not pasted spaces before or after
+the key. Provider usage and billing are controlled by that provider.
+
+### Ollama is unavailable
+
+Start Ollama and verify the model is installed:
+
+```bash
+ollama list
+```
+
+For Docker, use `docker compose ps` and
+`docker compose exec ollama ollama list`.
+
+### PDF or PNG export does not work
+
+The first PDF/PNG export may need a Chrome/Edge browser or a Playwright
+Chromium download. PPTX export is editable but intentionally text-oriented and
+may not reproduce every visual detail.
+
+## For contributors
+
+```bash
+uv sync --project backend
+npm ci --prefix frontend
+make check
+```
+
+`make check` runs Ruff, mypy, ESLint, Prettier, the backend tests, frontend
+tests, and the frontend production build.
+
+Useful commands:
+
+```bash
+make gen-api       # regenerate the typed frontend client
+make benchmark     # benchmark configured models
+make hooks-install # install pre-commit hooks
+```
 
 ## Project structure
 
+```text
+backend/       FastAPI API, database, LLM providers, imports, exports
+frontend/      React application and editor
+launcher/      Browser launcher for packaged releases
+desktop/       Tauri native shell
+packaging/     PyInstaller bundle and smoke test
+docs/          Download and desktop documentation
+plan.md        Roadmap and implementation checklist
 ```
-backend/     FastAPI app (API, LLM gateway, generation, export, import)
-frontend/    React app (renderer, editor, settings)
-evals/       Model benchmarks and generation-quality checks
-plan.md      Plan and architecture notes
-data/        Local database and generated assets (gitignored)
-```
-
-## Download and self-hosting
-
-Download platform archives from the [Delta Releases page](https://github.com/FanisD/Delta/releases)
-or the [download page](docs/download/index.html). Release archives include SHA256 checksums;
-cross-platform artifact launch checks run in GitHub Actions, while local development can use
-`python packaging/smoke.py <path-to-Delta>`.
-
-Contributors can run `docker compose up --build`. Add `--profile ollama` to start an Ollama
-container alongside Delta (`docker compose --profile ollama up --build`), then pull a model
-from the Ollama container.
-
-## Roadmap
-
-- [x] **Phase 0:** Foundation (repo, scaffolding, tooling, CI)
-- [x] **Phase 1:** Document model, renderer, app-data paths, and launcher spike
-- [x] **Phase 2:** LLM provider layer and bundle smoke path
-- [x] **Phase 3:** Generation pipeline
-- [x] **Phase 4:** Editor and persistence *(MVP)*
-- [x] **Phase 5:** Images and charts
-- [x] **Phase 6:** Import and export
-- [x] **Phase 7:** Chat agent
-- [ ] **Phase 8:** Packaging and quality *(launcher, packaging workflow, and docs implemented; update UI, first-run screen, and full cross-platform release validation remain)*
-
-The full task breakdown lives in [`plan.md`](plan.md).
-
-## Contributing
-
-The project is at a very early stage. Issues and ideas are welcome; please open an issue before starting a large pull request.
 
 ## License
 
-This project is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for the full text.
+Delta is licensed under the [GNU General Public License v3.0](LICENSE).

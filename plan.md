@@ -1,8 +1,8 @@
-# Delta AI Presentation Builder: Build Plan
+# Gamma-Style AI Presentation Builder: Build Plan
 
 **Stack:** FastAPI (Python) backend + React (TypeScript) frontend
 **Runs:** locally, with either cloud model API keys (Gemini, Claude, Grok, ...) or local models (Ollama, ...)
-**Distribution:** downloadable per-OS builds from GitHub Releases and a website. **First release = a PyInstaller launcher:** the user double-clicks, a local server starts, and the app opens in their browser. A desktop shell (Tauri/Electron) is a possible later step (Phase 9), built on top of the same launcher.
+**Distribution:** downloadable per-OS builds from GitHub Releases and a website, in **two permanent forms**: a lightweight **launcher** (double-click, opens in the browser — ships first, Phase 8) and an installed **desktop app** (native window, Phase 9, added once the launcher is stable). Both wrap the exact same backend and frontend code.
 
 ---
 
@@ -48,6 +48,7 @@ Input -> Outline -> Card content (JSON) -> Layout -> Theme -> Images/Charts -> E
 8. **Local-only server.** Bind to `127.0.0.1` on a free port (fall back if the default is taken) and reject requests with unexpected `Host`/`Origin` headers, so other websites cannot talk to the local API.
 9. **API keys go in the OS keyring** (Windows Credential Manager, macOS Keychain, Linux Secret Service) via `keyring`, with an encrypted-file fallback when no keyring is available.
 10. **Build per OS on CI.** PyInstaller cannot cross-compile, so GitHub Actions builds on Windows, macOS and Linux runners.
+11. **The desktop app is the launcher in a native window, not a rewrite.** It starts the same PyInstaller backend as a background process (a "sidecar") and points a native window at `http://127.0.0.1:<port>` instead of opening the system browser. No backend or frontend business logic changes for the desktop app; only the host shell differs.
 
 ---
 
@@ -69,6 +70,7 @@ Input -> Outline -> Card content (JSON) -> Layout -> Theme -> Images/Charts -> E
 | Secrets | **keyring** (+ `cryptography` Fernet file as fallback) | API keys in the OS keyring, never returned to the frontend |
 | App paths | **platformdirs** | OS-correct data, config and log folders |
 | Launcher / packaging | **PyInstaller** (`--onedir`), stdlib `webbrowser` | Starts the server, opens the browser, bundles Python + built frontend + prompts + migrations |
+| Desktop shell (Phase 9) | **Tauri** (Rust) | Native window wrapping the same backend as a sidecar process; far smaller than Electron since it uses the OS's built-in webview instead of bundling Chromium |
 | Prompts | **Jinja2** templates in `backend/app/prompts/` | Versioned, testable |
 | Image providers | Gemini/OpenAI image APIs, ComfyUI or Automatic1111 (local), Unsplash/Pexels (stock) | Behind one provider interface |
 | Export | **Playwright for Python** (PDF/PNG), **python-pptx** (PPTX) | |
@@ -129,6 +131,7 @@ gamma-clone/
 │  │  └─ store/
 │  └─ package.json
 ├─ launcher/             # production entrypoint: free port, start server, open browser
+├─ desktop/              # Tauri project: native window wrapping the backend sidecar (Phase 9)
 ├─ packaging/            # PyInstaller spec, icons, installer scripts (Inno Setup, dmg)
 ├─ evals/                # model benchmark + generation quality suite
 ├─ data/                 # dev only (gitignored); shipped builds use the OS app-data folder
@@ -250,11 +253,11 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 ### Phase 4: Editor and persistence (2-3 weeks)
 
-- [x] **P4.1** Card sidebar: reorder, duplicate, delete, add
-- [x] **P4.2** Inline editing with a lightweight typed editor
+- [x] **P4.1** Card sidebar: thumbnails, dnd-kit reorder, duplicate, delete, add
+- [x] **P4.2** Inline editing with TipTap; block insert menu
 - [x] **P4.3** Debounced autosave (PATCH) with a version field for conflict safety
-- [x] **P4.4** Undo/redo history
-- [x] **P4.5** Inline AI actions via `/api/ai/edit`, with accept/reject
+- [x] **P4.4** Undo/redo (Immer patches)
+- [x] **P4.5** Inline AI actions (rewrite, shorten, expand, translate, change tone) via `/api/ai/edit`, with accept/reject
 - [x] **P4.6** Per-card layout picker; global theme switcher
 - [x] **P4.7** Project home: list, search, rename, duplicate, delete
 
@@ -266,20 +269,20 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 - [x] **P5.2** Asset storage on disk (`data/assets/`), served by FastAPI, referenced by ID
 - [x] **P5.3** LLM step that writes image prompts from card content, with a style hint derived from the theme
 - [x] **P5.4** Async image jobs: placeholder first, then SSE update; regenerate, replace, upload
-- [x] **P5.5** Chart block: data in JSON, rendered by the shared frontend renderer; mark model-generated numbers as illustrative to avoid implying real data
+- [x] **P5.5** Chart block: data in JSON, rendered by Recharts; mark model-generated numbers as illustrative to avoid implying real data
 - [x] **P5.6** Mermaid diagram block; Lucide icons
 - [x] **P5.7** Graceful fallback when no image provider is configured (gradients, patterns, icons)
 
 ### Phase 6: Import and export (2 weeks)
 
 - [x] **P6.1** `/print/:deckId` route in React with page-sized CSS
-- [x] **P6.2** PDF and PNG export via Playwright hitting the print route, preferring installed Chrome/Edge and falling back to an app-data Chromium install when available
-- [x] **P6.3** PPTX export with python-pptx driven by the deck layout/content (fidelity varies by block type)
-- [x] **P6.4** Standalone HTML export with inlined CSS and escaped content
+- [x] **P6.2** PDF and PNG export via Playwright hitting the print route, using the user's installed Chrome/Edge (`channel="chrome"` / `"msedge"`) and falling back to downloading Chromium into the app-data folder on first export (with a progress message). Verify it works inside the PyInstaller bundle.
+- [x] **P6.3** PPTX export with python-pptx driven by the layout specs; verify in PowerPoint and LibreOffice; accept some fidelity loss
+- [x] **P6.4** Standalone HTML export (inlined CSS, JS, assets)
 - [x] **P6.5** Import: paste text into the outline step
-- [x] **P6.6** Import: PDF, DOCX, URL, with an SSRF guard and size/time limits
-- [x] **P6.7** Long-input handling: chunk before outline generation for small-context models
-- [x] **P6.8** (Optional) PPTX import (text and table extraction into the outline flow)
+- [x] **P6.6** Import: PDF, DOCX, URL, with an SSRF guard (block private/loopback addresses)
+- [x] **P6.7** Long-input handling: chunk and summarize (map-reduce) so small-context models cope
+- [x] **P6.8** (Optional) PPTX import
 
 ### Phase 7: Chat agent (1-2 weeks)
 
@@ -296,28 +299,65 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 - [x] **P8.2** First-run experience: welcome screen; detect Ollama (running? models pulled? link to install) or guide the user through adding an API key; show where their data is stored
 - [x] **P8.3** Final PyInstaller spec: `--onedir` (faster startup and fewer antivirus false positives than `--onefile`); bundle the built frontend, prompts, layout specs and Alembic migrations; `collect-all` / hidden imports for LiteLLM and Playwright; app icon and version stamp
 - [x] **P8.4** Automatic DB migrations on startup (Alembic `upgrade head`), with a backup copy of the DB file before migrating when the app version changed
-- [x] **P8.5** Per-OS artifacts on CI: Windows (zip, optional Inno Setup installer), macOS (`.app` in a `.dmg`; Apple Silicon and Intel built separately or via a universal2 Python), Linux (`tar.gz`, optional AppImage). Smoke-test every artifact: launch it, wait for `/api/health`, shut it down. Cross-platform validation runs on the CI matrix.
+- [x] **P8.5** Per-OS artifacts on CI: Windows (zip, optional Inno Setup installer), macOS (`.app` in a `.dmg`; Apple Silicon and Intel built separately or via a universal2 Python), Linux (`tar.gz`, optional AppImage). Smoke-test every artifact: launch it, wait for `/api/health`, shut it down.
 - [x] **P8.6** Release workflow: on a `v*` tag, build all artifacts, generate SHA256 checksums, attach everything to a GitHub Release with generated notes
 - [x] **P8.7** Signing (optional for early releases): document the Windows SmartScreen and macOS Gatekeeper "unidentified developer" steps; later add a Windows code-signing certificate and Apple Developer ID plus notarization
 - [x] **P8.8** Update check: on launch, ask the GitHub Releases API for the latest version and show a non-intrusive "new version available" banner linking to the download page. No auto-updater in v1; provide a setting to turn the check off.
 
 **Quality and docs**
-- [x] **P8.9** Eval suite (20 prompts per model): valid-JSON rate, text overflow rate, layout variety, latency
-- [x] **P8.10** E2E tests (Playwright): generate, edit, export (Chromium suite; browser execution is CI-dependent)
+- [x] **P8.9** Eval suite (about 20 prompts per model): valid-JSON rate, text overflow rate, layout variety, latency
+- [x] **P8.10** E2E tests (Playwright): generate, edit, export
 - [x] **P8.11** Error UX: missing key, Ollama offline, model not pulled, context overflow, port in use
 - [x] **P8.12** Docs: per-OS quickstart, "add a provider", troubleshooting (antivirus, ports, Ollama), where data lives; add a Download section to the README
-- [x] **P8.13** Download page (simple static site): per-OS buttons, screenshots placeholder, checksums
-- [x] **P8.14** Dockerfile and `docker-compose.yml` (app plus optional `ollama` profile) for contributors and self-hosting
+- [x] **P8.13** Download page (GitHub Pages or a simple site): per-OS buttons, screenshots, checksums
+- [x] **P8.14** (Optional) Dockerfile and `docker-compose.yml` (app plus optional `ollama` profile) for contributors and self-hosting
 
 **Done when:** a non-technical person can download a file from the release page, double-click it, configure a model in the first-run screen, and generate a deck, with no terminal involved.
 
-### Phase 9: Polish and extras (ongoing)
+### Phase 9: Desktop app (Tauri) — a second, native download option (3-4 weeks)
+
+The launcher (Phase 8) stays as the lightweight, no-install option. This phase adds an **installed desktop app** alongside it, so the download page offers both per OS. The desktop app is the same backend and frontend, run inside a native window instead of the browser — not a second implementation.
+
+**Shell choice: Tauri over Electron.** Tauri uses the OS's built-in webview (WebView2 on Windows, WKWebView on macOS, WebKitGTK on Linux), so the shell itself adds only a few MB, versus Electron bundling its own Chromium (100-150+ MB). Since the Python backend is already bundled via PyInstaller, Tauri's job is just to start it and open a window — it doesn't need Node.js integration, which is Electron's main advantage and not needed here. Revisit Electron only if Tauri's sidecar or webview support proves too limiting.
+
+**Group A — Decision and architecture**
+- [x] **P9.1** Write a short decision note (Tauri vs Electron trade-offs: size, resource use, sidecar maturity, webview-version fragmentation); confirm Tauri
+- [x] **P9.2** Confirm the architecture: Tauri window loads `http://127.0.0.1:<port>`, served by the same PyInstaller backend from Phase 8, started as a sidecar; no new business logic
+
+**Group B — Project setup**
+- [x] **P9.3** Scaffold `desktop/` with `cargo tauri init`, pointed at the built `frontend/dist` (used only for icons/config; the window navigates to the live local URL rather than loading static files directly)
+- [x] **P9.4** Configure `tauri.conf.json`: `bundle.externalBin` referencing the PyInstaller backend binary per target triple, app identifier, icon set, window title and minimum size
+- [x] **P9.5** Rust-side sidecar manager: spawn the backend on app startup, poll `/api/health` until ready, kill the child process (including a force-kill fallback) on window close or app quit, surface a retry/error dialog if the backend crashes or the port is unavailable
+- [x] **P9.6** Single-instance plugin: a second launch focuses the existing window instead of starting a second backend process
+- [x] **P9.7** Native splash/loading screen shown while the sidecar boots (cold start can take a few seconds)
+
+**Group C — Native integration**
+- [x] **P9.8** System tray icon (Show / Hide / Quit) with a "minimize to tray" setting
+- [x] **P9.9** Minimal native menu bar (Quit, standard Edit commands, Check for Updates, About)
+- [ ] **P9.10** Native save dialogs for PDF/PPTX/PNG export (Tauri's dialog and fs plugins) in place of the browser download flow; the launcher keeps the browser-download behavior
+- [ ] **P9.11** *(Optional, cut if unneeded)* `deck://` deep-link handler for opening a deck from outside the app
+
+**Group D — Updates and signing**
+- [ ] **P9.12** Tauri updater plugin wired to a signed `latest.json` manifest published alongside each GitHub Release; generate the updater signing keypair and store the private key in GitHub Actions secrets (configuration and procedure are documented; no signed key/manifest exists yet)
+- [ ] **P9.13** Code signing: Windows Authenticode certificate, macOS Developer ID plus notarization. Needed for the updater to run without scary prompts, and reusable for the Phase 8 launcher too
+
+**Group E — CI/CD and release**
+- [x] **P9.14** Extend the release workflow to also build Tauri bundles on native runners: Windows (`.msi`/`.exe`), macOS (`.dmg`, arm64 and x64 or universal2), Linux (`.deb`, `.AppImage`) — alongside the existing plain-launcher artifacts, not replacing them
+- [ ] **P9.15** CI smoke test per platform: install/run the bundle, confirm the sidecar starts and `/api/health` responds inside the shell
+- [x] **P9.16** Update the download page to present both options per OS with a one-line "which should I pick" note (desktop app: installed, auto-updates, native feel; launcher: no install, just unzip and run)
+
+**Group F — Docs and maintenance**
+- [x] **P9.17** Desktop-specific troubleshooting docs: missing WebKitGTK on Linux (`apt install` step), missing WebView2 runtime on older Windows, Gatekeeper/notarization messaging
+- [x] **P9.18** Decide and document the maintenance policy: both tracks get every release, or the launcher moves to maintenance-only once the desktop app is stable
+
+**Done when:** both the launcher and the desktop app are on the release page for Windows, macOS and Linux; the desktop app opens as a native window with no visible browser chrome; auto-update works end to end on at least one OS; quitting the app leaves no orphaned backend process.
+
+### Phase 10: Polish and extras (ongoing)
 
 - [ ] Templates and brand kit (logo, colors, fonts)
 - [ ] Documents and webpage output types
 - [ ] Speaker notes and presenter view
 - [ ] Keyboard shortcuts, UI localization
-- [ ] Desktop shell (Tauri or Electron) wrapping the existing launcher: own window, native menus, real installer, auto-updater. Electron would also let PDF export use its built-in Chromium. Decide after v1 based on user feedback.
 
 ---
 
@@ -329,7 +369,9 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 | **MVP** (generate, edit, reopen) | 0-4 | 7-10 weeks |
 | Images, import/export, agent | 5-7 | 4-6 weeks |
 | Launcher packaging and first release | 8 | 2-3 weeks |
-| **Full product (v1)** | 0-8 | about 13-19 weeks |
+| **Full product (v1 — launcher)** | 0-8 | about 13-19 weeks |
+| Desktop app (Tauri) | 9 | 3-4 weeks |
+| **v1.1 — launcher + desktop app** | 0-9 | about 16-23 weeks |
 
 ---
 
@@ -351,7 +393,11 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 | Local server reachable by other websites or processes | Bind to `127.0.0.1` only, validate `Host`/`Origin`, no wildcard CORS |
 | Port already in use, or the app launched twice | Free-port selection and a single-instance lock (P8.1) |
 | User data lost on upgrade | Data lives outside the app folder; DB backup before migrations (P8.4) |
-| Scope creep | Follow the MVP cut line (Phase 4); nothing from Phase 9 before v1 |
+| Missing WebView2 (older Windows) or WebKitGTK (Linux) breaks the desktop app | Bundle/prompt for the WebView2 runtime; document the WebKitGTK package for Linux; the launcher remains a fallback that needs neither |
+| Sidecar process survives a shell crash or force-quit | Process-group kill on exit, startup check that kills any orphan from a previous crash, tested explicitly in P9.15 |
+| Updater signing key lost or leaked | Store it only in CI secrets, document a key-rotation procedure, never commit it |
+| Maintaining two shells (launcher and desktop app) doubles the build and QA surface | Both share 100% of backend/frontend code (P9.2); only the shell differs; CI builds and smoke-tests both every release |
+| Scope creep | Follow the MVP cut line (Phase 4); nothing from Phase 10 before v1.1 |
 
 ---
 
@@ -359,4 +405,6 @@ Task IDs (P0.1, P1.3, ...) are meant to become GitHub issues.
 
 **MVP:** a user configures one provider (cloud key or Ollama), generates a deck from a prompt, edits it, and reopens it later.
 
-**v1:** MVP plus images, PDF/PPTX/HTML export, file/URL import, chat agent, downloadable per-OS launcher builds on GitHub Releases that a non-technical user can double-click, and documented eval results for at least three models.
+**v1 (launcher):** MVP plus images, PDF/PPTX/HTML export, file/URL import, chat agent, downloadable per-OS launcher builds on GitHub Releases that a non-technical user can double-click, and documented eval results for at least three models.
+
+**v1.1 (launcher + desktop app):** everything in v1, plus an installed, native desktop app for each OS — built from the same backend and frontend, with its own window, system tray, native export dialogs and working auto-update — offered as a second download option alongside the launcher.

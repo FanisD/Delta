@@ -12,6 +12,7 @@ class ModelCapabilities:
 
 
 _PROVIDER_DEFAULTS: dict[ProviderId, ModelCapabilities] = {
+    "openai": ModelCapabilities(True, True, True, None),
     "gemini": ModelCapabilities(True, True, True, None),
     "anthropic": ModelCapabilities(True, True, True, None),
     "xai": ModelCapabilities(True, True, True, None),
