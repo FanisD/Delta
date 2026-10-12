@@ -2,6 +2,8 @@
 
 **Delta turns a prompt into an editable presentation on your own computer.**
 
+(feel free to make a review or add something)
+
 Delta is local-first: the application, presentation files, and saved provider
 settings live on your machine. You choose whether the AI comes from a cloud
 provider using your own API key or from a local Ollama model.
