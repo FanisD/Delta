@@ -564,7 +564,8 @@ export type ModelCapabilitiesResponse = {
   /**
    * Provider
    */
-  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  provider:
+    "openai" | "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
   /**
    * Model
    */
@@ -732,7 +733,8 @@ export type ProviderConfiguration = {
   /**
    * Provider
    */
-  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  provider:
+    "openai" | "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
   /**
    * Configured
    */
@@ -758,7 +760,8 @@ export type ProviderModelSelection = {
   /**
    * Provider
    */
-  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  provider:
+    "openai" | "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
   /**
    * Model
    */
@@ -788,7 +791,8 @@ export type ProviderTestRequest = {
   /**
    * Provider
    */
-  provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+  provider:
+    "openai" | "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
   /**
    * Model
    */
@@ -1238,7 +1242,8 @@ export type GetModelCapabilityApiModelsCapabilitiesProviderGetData = {
     /**
      * Provider
      */
-    provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+    provider:
+      "openai" | "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
   }
   query: {
     /**
@@ -1292,7 +1297,8 @@ export type UpdateProviderSettingsApiSettingsProvidersProviderPutData = {
     /**
      * Provider
      */
-    provider: "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
+    provider:
+      "openai" | "gemini" | "anthropic" | "xai" | "openai_compatible" | "ollama"
   }
   query?: never
   url: "/api/settings/providers/{provider}"

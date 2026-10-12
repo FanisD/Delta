@@ -170,6 +170,7 @@ async def test_gateway_streams_text_deltas(monkeypatch: pytest.MonkeyPatch) -> N
 @pytest.mark.parametrize(
     ("provider", "model", "prefix"),
     [
+        ("openai", "gpt-4o-mini", "openai/"),
         ("gemini", "gemini-2.5-flash", "gemini/"),
         ("anthropic", "claude-3-7-sonnet", "anthropic/"),
         ("xai", "grok-3-mini", "xai/"),

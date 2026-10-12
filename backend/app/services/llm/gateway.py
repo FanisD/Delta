@@ -22,6 +22,7 @@ class ProviderCallConfig:
     @property
     def litellm_model(self) -> str:
         prefix = {
+            "openai": "openai/",
             "gemini": "gemini/",
             "anthropic": "anthropic/",
             "xai": "xai/",

@@ -34,7 +34,7 @@ from app.services.llm.structured import supported_output_modes
 router = APIRouter(tags=["provider settings"])
 SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 MODEL_ROLES: tuple[ModelRole, ...] = ("outline", "content", "edit")
-KEY_REQUIRED_PROVIDERS: frozenset[ProviderId] = frozenset({"gemini", "anthropic", "xai"})
+KEY_REQUIRED_PROVIDERS: frozenset[ProviderId] = frozenset({"openai", "gemini", "anthropic", "xai"})
 llm_client = LLMClient()
 provider_id_adapter: TypeAdapter[ProviderId] = TypeAdapter(ProviderId)
 
@@ -80,9 +80,7 @@ def to_provider_configuration(record: ProviderRecord) -> ProviderConfiguration:
     )
     return ProviderConfiguration(
         provider=provider_id_adapter.validate_python(record.provider),
-        configured=(
-            record.provider == "ollama" or record.provider == "openai_compatible" or key_configured
-        ),
+        configured=(record.provider in {"ollama", "openai_compatible"} or key_configured),
         model=record.model,
         base_url=record.base_url,
         api_key_configured=key_configured,

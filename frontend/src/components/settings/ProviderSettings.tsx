@@ -38,6 +38,12 @@ const providerOptions: {
     needsKey: true,
   },
   {
+    id: "openai",
+    name: "OpenAI",
+    modelPlaceholder: "gpt-4o-mini",
+    needsKey: true,
+  },
+  {
     id: "anthropic",
     name: "Anthropic Claude",
     modelPlaceholder: "claude-sonnet-4-5",
@@ -64,6 +70,7 @@ const providerOptions: {
 ]
 
 const emptyDrafts: Drafts = {
+  openai: { model: "", apiKey: "", baseUrl: "", clearApiKey: false },
   gemini: { model: "", apiKey: "", baseUrl: "", clearApiKey: false },
   anthropic: { model: "", apiKey: "", baseUrl: "", clearApiKey: false },
   xai: { model: "", apiKey: "", baseUrl: "", clearApiKey: false },
