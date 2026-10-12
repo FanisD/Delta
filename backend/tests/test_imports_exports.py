@@ -4,7 +4,7 @@ import pytest
 from fastapi import HTTPException, UploadFile
 from pptx import Presentation
 
-from app.api.exports import standalone_html
+from app.api.exports import PPTX_THEMES, standalone_html
 from app.api.imports import import_file, validate_public_url
 from app.schemas.generation import Outline
 
@@ -24,6 +24,11 @@ def test_standalone_html_contains_all_cards_and_escaped_text() -> None:
     assert "<safe>" not in rendered
     assert "&lt;safe&gt;" in rendered
     assert "Intro" in rendered
+
+
+def test_pptx_themes_define_distinct_background_and_accent_colors() -> None:
+    assert set(PPTX_THEMES) == {"ocean", "sunset", "forest"}
+    assert len(set(PPTX_THEMES.values())) == 3
 
 
 @pytest.mark.parametrize(

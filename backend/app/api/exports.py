@@ -10,12 +10,236 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
+from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 
 from app.core.config import settings
 from app.database import session_factory
 from app.models.deck import DeckRecord
 
 router = APIRouter(prefix="/api/decks", tags=["exports"])
+
+PptxTheme = tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int]]
+PPTX_THEMES: dict[str, PptxTheme] = {
+    "ocean": ((242, 248, 252), (22, 50, 74), (42, 121, 165)),
+    "sunset": ((253, 244, 232), (75, 42, 31), (198, 92, 44)),
+    "forest": ((241, 248, 242), (35, 74, 50), (62, 121, 81)),
+}
+
+
+def _pptx_box(
+    slide: Any,
+    left: float,
+    top: float,
+    width: float,
+    height: float,
+    *,
+    fill: tuple[int, int, int] | None = None,
+    line: tuple[int, int, int] | None = None,
+) -> Any:
+    from pptx.util import Inches
+
+    shape = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(left), Inches(top), Inches(width), Inches(height)
+    )
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = RGBColor(*(fill or (255, 255, 255)))  # type: ignore[no-untyped-call]
+    if line:
+        shape.line.color.rgb = RGBColor(*line)  # type: ignore[no-untyped-call]
+    else:
+        shape.line.fill.background()
+    return shape
+
+
+def _pptx_text(
+    slide: Any,
+    text: str,
+    left: float,
+    top: float,
+    width: float,
+    height: float,
+    *,
+    size: int,
+    color: tuple[int, int, int],
+    bold: bool = False,
+    font: str = "Aptos",
+    align: Any = PP_ALIGN.LEFT,
+) -> Any:
+    from pptx.util import Inches, Pt
+
+    box = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+    frame = box.text_frame
+    frame.clear()
+    frame.word_wrap = True
+    frame.vertical_anchor = MSO_ANCHOR.MIDDLE
+    paragraph = frame.paragraphs[0]
+    paragraph.alignment = align
+    paragraph.text = text
+    paragraph.font.name = font
+    paragraph.font.size = Pt(size)
+    paragraph.font.bold = bold
+    paragraph.font.color.rgb = RGBColor(*color)  # type: ignore[no-untyped-call]
+    return box
+
+
+def _pptx_block_text(block: dict[str, Any]) -> str:
+    kind = block["type"]
+    if kind in {"heading", "paragraph", "quote"}:
+        return str(block.get("text", ""))
+    if kind == "stat":
+        return f"{block.get('value', '')}\n{block.get('label', '')}\n{block.get('context') or ''}".strip()
+    return ""
+
+
+def _pptx_render_content(
+    slide: Any,
+    card: dict[str, Any],
+    ink: tuple[int, int, int],
+    primary: tuple[int, int, int],
+    secondary: tuple[int, int, int],
+) -> None:
+    blocks = card["blocks"]
+    layout = card["layout"]
+    heading = next((b for b in blocks if b["type"] == "heading"), None)
+    paragraphs = [b for b in blocks if b["type"] == "paragraph"]
+    bullets = next((b for b in blocks if b["type"] == "bullets"), None)
+    columns = next((b for b in blocks if b["type"] == "columns"), None)
+    stats = [b for b in blocks if b["type"] == "stat"]
+    quotes = [b for b in blocks if b["type"] == "quote"]
+    x, y, width = 0.85, 1.15, 11.65
+
+    if layout == "title":
+        if paragraphs:
+            _pptx_text(slide, paragraphs[0]["text"], x, 0.32, 5.8, 0.32, size=11, color=primary)
+        if heading:
+            _pptx_text(
+                slide, heading["text"], x, 2.55, 10.8, 0.85, size=38, color=ink, font="Georgia"
+            )
+        for index, paragraph in enumerate(paragraphs[1:2]):
+            _pptx_text(
+                slide, paragraph["text"], x, 3.55 + index * 0.45, 9.7, 0.4, size=16, color=primary
+            )
+        return
+
+    if layout == "quote" and quotes:
+        _pptx_text(
+            slide,
+            f"“{quotes[0]['text']}”",
+            1.25,
+            2.05,
+            10.8,
+            1.65,
+            size=29,
+            color=ink,
+            font="Georgia",
+            align=PP_ALIGN.CENTER,
+        )
+        if quotes[0].get("attribution"):
+            _pptx_text(
+                slide,
+                quotes[0]["attribution"],
+                3.5,
+                4.0,
+                6.3,
+                0.35,
+                size=12,
+                color=primary,
+                align=PP_ALIGN.CENTER,
+            )
+        return
+
+    if heading:
+        _pptx_text(slide, heading["text"], x, y, width, 0.6, size=25, color=ink, bold=True)
+        y += 0.85
+
+    if layout in {"three_column", "timeline"} and columns:
+        gap = 0.2
+        card_width = (width - gap * (len(columns["columns"]) - 1)) / len(columns["columns"])
+        for index, column in enumerate(columns["columns"]):
+            left = x + index * (card_width + gap)
+            _pptx_box(slide, left, 2.05, card_width, 2.15, fill=secondary, line=primary)
+            _pptx_text(
+                slide,
+                column["title"],
+                left + 0.2,
+                2.3,
+                card_width - 0.4,
+                0.3,
+                size=14,
+                color=primary,
+                bold=True,
+            )
+            _pptx_text(
+                slide, column["body"], left + 0.2, 2.8, card_width - 0.4, 1.0, size=12, color=ink
+            )
+        return
+
+    if layout == "two_column" and (bullets or stats):
+        if bullets:
+            text = "\n".join(f"• {item}" for item in bullets["items"])
+            _pptx_text(slide, text, x, y, 6.1, 2.2, size=16, color=ink)
+        if stats:
+            stat = stats[0]
+            _pptx_box(slide, 7.25, 2.0, 2.95, 1.95, fill=secondary, line=primary)
+            _pptx_text(
+                slide, stat["value"], 7.55, 2.35, 2.35, 0.5, size=29, color=primary, font="Georgia"
+            )
+            _pptx_text(slide, stat["label"], 7.55, 2.95, 2.35, 0.3, size=12, color=ink, bold=True)
+            if stat.get("context"):
+                _pptx_text(slide, stat["context"], 7.55, 3.35, 2.35, 0.4, size=9, color=primary)
+        return
+
+    if columns:
+        gap = 0.2
+        card_width = (width - gap * (len(columns["columns"]) - 1)) / len(columns["columns"])
+        for index, column in enumerate(columns["columns"]):
+            left = x + index * (card_width + gap)
+            _pptx_box(slide, left, 2.0, card_width, 1.8, fill=secondary, line=primary)
+            _pptx_text(
+                slide,
+                column["title"],
+                left + 0.2,
+                2.25,
+                card_width - 0.4,
+                0.3,
+                size=13,
+                color=primary,
+                bold=True,
+            )
+            _pptx_text(
+                slide, column["body"], left + 0.2, 2.7, card_width - 0.4, 0.75, size=11, color=ink
+            )
+    elif bullets:
+        _pptx_text(
+            slide,
+            "\n".join(f"• {item}" for item in bullets["items"]),
+            x,
+            y,
+            width,
+            2.2,
+            size=16,
+            color=ink,
+        )
+    elif paragraphs:
+        _pptx_text(
+            slide, "\n".join(p["text"] for p in paragraphs), x, y, width, 2.0, size=16, color=ink
+        )
+    elif stats:
+        stat = stats[0]
+        _pptx_box(slide, x, y, 3.2, 1.8, fill=secondary, line=primary)
+        _pptx_text(
+            slide,
+            stat["value"],
+            x + 0.25,
+            y + 0.3,
+            2.7,
+            0.45,
+            size=29,
+            color=primary,
+            font="Georgia",
+        )
+        _pptx_text(slide, stat["label"], x + 0.25, y + 0.9, 2.7, 0.3, size=12, color=ink, bold=True)
 
 
 async def _deck(deck_id: str) -> dict[str, Any]:
@@ -123,6 +347,63 @@ async def _playwright_bytes(deck_id: str, kind: str, base_url: str) -> bytes:
             await browser.close()
 
 
+@router.get("/{deck_id}/export/pptx")
+async def export_pptx(deck_id: str) -> Response:
+    try:
+        from pptx import Presentation
+        from pptx.util import Inches
+    except ImportError as exc:
+        raise HTTPException(
+            503, "python-pptx is not installed; PPTX export is unavailable."
+        ) from exc
+    deck = await _deck(deck_id)
+    presentation = Presentation()
+    presentation.slide_width, presentation.slide_height = Inches(13.333), Inches(7.5)
+    background, ink, primary = PPTX_THEMES.get(deck["theme"], PPTX_THEMES["ocean"])
+    secondary: tuple[int, int, int] = (
+        round((background[0] + primary[0]) / 2),
+        round((background[1] + primary[1]) / 2),
+        round((background[2] + primary[2]) / 2),
+    )
+    for card in deck["cards"]:
+        slide = presentation.slides.add_slide(presentation.slide_layouts[6])
+        slide.background.fill.solid()
+        slide.background.fill.fore_color.rgb = RGBColor(*background)  # type: ignore[no-untyped-call]
+        accent = slide.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(0.18)
+        )
+        accent.fill.solid()
+        accent.fill.fore_color.rgb = RGBColor(*primary)  # type: ignore[no-untyped-call]
+        accent.line.fill.background()
+        _pptx_render_content(slide, card, ink, primary, secondary)
+        footer_y = 6.88
+        footer = slide.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE, Inches(0.85), Inches(footer_y), Inches(11.65), Inches(0.01)
+        )
+        footer.fill.solid()
+        footer.fill.fore_color.rgb = RGBColor(*primary)  # type: ignore[no-untyped-call]
+        footer.line.fill.background()
+        _pptx_text(slide, card["title"], 0.85, 6.98, 9.6, 0.22, size=9, color=primary)
+        _pptx_text(
+            slide,
+            str(len(presentation.slides)),
+            11.8,
+            6.98,
+            0.7,
+            0.22,
+            size=9,
+            color=primary,
+            align=PP_ALIGN.RIGHT,
+        )
+    output = io.BytesIO()
+    presentation.save(output)
+    return Response(
+        output.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        headers={"Content-Disposition": f'attachment; filename="{deck["title"]}.pptx"'},
+    )
+
+
 @router.get("/{deck_id}/export/{kind}")
 async def export_visual(deck_id: str, kind: str, request: Request) -> Response:
     if kind not in {"pdf", "png"}:
@@ -133,42 +414,4 @@ async def export_visual(deck_id: str, kind: str, request: Request) -> Response:
         data,
         media_type=media,
         headers={"Content-Disposition": f'attachment; filename="{deck_id}.{kind}"'},
-    )
-
-
-@router.get("/{deck_id}/export/pptx")
-async def export_pptx(deck_id: str) -> Response:
-    try:
-        from pptx import Presentation
-        from pptx.util import Inches, Pt
-    except ImportError as exc:
-        raise HTTPException(
-            503, "python-pptx is not installed; PPTX export is unavailable."
-        ) from exc
-    deck = await _deck(deck_id)
-    presentation = Presentation()
-    presentation.slide_width, presentation.slide_height = Inches(13.333), Inches(7.5)
-    for card in deck["cards"]:
-        slide = presentation.slides.add_slide(presentation.slide_layouts[6])
-        box = slide.shapes.add_textbox(Inches(0.7), Inches(0.6), Inches(12), Inches(6.1))
-        frame = box.text_frame
-        frame.text = card["title"]
-        frame.paragraphs[0].font.size = Pt(30)
-        for block in card["blocks"]:
-            if block["type"] in {"heading", "paragraph", "quote", "stat"}:
-                p = frame.add_paragraph()
-                p.text = block.get("text") or f"{block.get('value', '')} {block.get('label', '')}"
-                p.font.size = Pt(18)
-            elif block["type"] == "bullets":
-                for item in block["items"]:
-                    p = frame.add_paragraph()
-                    p.text = item
-                    p.level = 0
-                    p.font.size = Pt(16)
-    output = io.BytesIO()
-    presentation.save(output)
-    return Response(
-        output.getvalue(),
-        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        headers={"Content-Disposition": f'attachment; filename="{deck["title"]}.pptx"'},
     )

@@ -4,6 +4,7 @@ WORKDIR /build/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend ./
+COPY shared/layouts.json /build/shared/layouts.json
 RUN npm run build
 
 FROM python:3.12-slim
@@ -19,4 +20,7 @@ COPY --from=frontend-build /build/frontend/dist /app/frontend/dist
 EXPOSE 8000
 VOLUME ["/data"]
 ENV APP_DATA_DIR=/data
-CMD ["uv", "run", "--project", "/app/backend", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+WORKDIR /app/backend
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=5 \
+  CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=2)"]
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

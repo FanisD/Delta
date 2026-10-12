@@ -6,8 +6,22 @@ services:
     environment:
       APP_DATA_DIR: /data
       APP_OLLAMA_BASE_URL: http://ollama:11434
+      # Compose reads APP_ENCRYPTION_KEY from the local .env file.
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
     volumes:
       - delta-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=2)",
+        ]
+      interval: 10s
+      timeout: 3s
+      start_period: 30s
+      retries: 5
   ollama:
     image: ollama/ollama:latest
     profiles: ["ollama"]

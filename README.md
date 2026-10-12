@@ -138,6 +138,21 @@ already installed.
 
 ### Cloud provider in Docker
 
+Before starting Docker, create a `.env` file and generate the key that Delta
+uses to encrypt your OpenAI, Gemini, or Anthropic key:
+
+```bash
+cp .env.example .env
+python -c "import base64, os; print('APP_ENCRYPTION_KEY=' + base64.urlsafe_b64encode(os.urandom(32)).decode())"
+```
+
+Open `.env`, replace the existing empty `APP_ENCRYPTION_KEY=` line with the
+`APP_ENCRYPTION_KEY=...` line printed by the command, and save the file. Keep
+`.env` private; it is ignored by Git. This key is required for cloud
+credentials, but is not needed when using Ollama.
+
+Then start Delta:
+
 ```bash
 git clone https://github.com/FanisD/Delta.git
 cd Delta
@@ -145,7 +160,9 @@ docker compose up --build
 ```
 
 Open <http://localhost:8000>, then configure OpenAI, Gemini, or Anthropic in
-**Settings**. Your data is kept in the Docker volume named `delta-data`.
+**Settings**. Your data is kept in the Docker volume named `delta-data`. If you
+already started the container before adding the key, simply run
+`docker compose up -d` again; do not delete the volume.
 
 ### Ollama in Docker
 
@@ -231,8 +248,10 @@ For Docker, use `docker compose ps` and
 ### PDF or PNG export does not work
 
 The first PDF/PNG export may need a Chrome/Edge browser or a Playwright
-Chromium download. PPTX export is editable but intentionally text-oriented and
-may not reproduce every visual detail.
+Chromium download. PPTX export is editable and recreates the main browser
+layouts, theme colors, cards, bullets, statistics, and footer. PowerPoint uses
+different fonts and rendering rules, so very small spacing or font differences
+are normal.
 
 ## For contributors
 

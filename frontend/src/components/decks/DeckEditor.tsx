@@ -154,6 +154,14 @@ export function DeckEditor({ deck, onChange, onBack, onPresent }: Props) {
         <button className="primary-button" onClick={onPresent}>
           Present
         </button>
+        <button
+          className="quiet-button"
+          onClick={() => {
+            window.location.href = `/api/decks/${deck.id}/export/pptx`
+          }}
+        >
+          Export PowerPoint
+        </button>
       </header>
       <div className="editor-body">
         <aside className="card-sidebar">
